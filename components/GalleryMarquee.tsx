@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Pause, Play } from "lucide-react";
 import { MediaFrame } from "./ui";
 import { Lightbox } from "./Gallery";
@@ -64,16 +64,19 @@ function useRotation(album: Album, start: number, paused: boolean) {
 
 function AlbumCard({ album, start, paused, hidden, onOpen }: { album: Album; start: number; paused: boolean; hidden?: boolean; onOpen: (album: Album, index: number) => void }) {
   const index = useRotation(album, start, paused);
-  const [prev, setPrev] = useState<number | null>(null);
-  const last = useRef(index);
+  const cur = useRef<HTMLSpanElement>(null);
+  // What's on screen: the current item and, during a fade, the one underneath it.
+  const [shown, setShown] = useState<{ cur: number; prev: number | null }>({ cur: index, prev: null });
+  if (shown.cur !== index) setShown({ cur: index, prev: shown.cur });
+  const prev = shown.prev;
 
-  useEffect(() => {
-    if (index === last.current) return;
-    setPrev(last.current);
-    last.current = index;
-    const t = setTimeout(() => setPrev(null), 1000);
-    return () => clearTimeout(t);
-  }, [index]);
+  // Crossfade the new media in over the old one (before first paint, so no flicker).
+  useLayoutEffect(() => {
+    if (prev === null) return;
+    const anim = cur.current?.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: 900, easing: "ease-in-out", fill: "both" });
+    const t = setTimeout(() => setShown((sh) => ({ ...sh, prev: null })), 950);
+    return () => { clearTimeout(t); anim?.cancel(); };
+  }, [shown.cur, prev]);
 
   const item = album.items[index];
   const before = prev !== null ? album.items[prev] : null;
@@ -93,7 +96,7 @@ function AlbumCard({ album, start, paused, hidden, onOpen }: { album: Album; sta
         {before && (
           <span key={`b-${before.id}`} className="absolute inset-0"><MediaFrame media={before.media} /></span>
         )}
-        <span key={`c-${item.id}`} className={`absolute inset-0 transition-transform duration-700 ease-out group-hover/card:scale-105 ${before ? "animate-media-in" : ""}`}>
+        <span key={`c-${item.id}`} ref={cur} className="absolute inset-0 transition-transform duration-700 ease-out group-hover/card:scale-105">
           <MediaFrame media={item.media} />
         </span>
         <span className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-ink/55 to-transparent" />
@@ -122,8 +125,8 @@ export function GalleryMarquee({ items, categories }: { items: GalleryItem[]; ca
   const [start] = useState(() => Math.floor(Date.now() / ROTATE_MS) * ROTATE_MS);
   const [paused, setPaused] = useState(false);
   const [visible, setVisible] = useState(true);
-  const [reduced, setReduced] = useState(false);
-  const [duration, setDuration] = useState(60);
+  const [hold, setHold] = useState(false); // hover / keyboard focus
+  const strip = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<{ items: GalleryItem[]; index: number } | null>(null);
 
   // One album per category that has media, newest first; staggered so cards don't all change at once.
@@ -145,22 +148,32 @@ export function GalleryMarquee({ items, categories }: { items: GalleryItem[]; ca
     return out;
   }, [albums]);
 
+  /*
+   * The glide runs on requestAnimationFrame rather than a CSS animation, so it keeps moving on
+   * computers with "animation effects" turned off (the site-wide reduced-motion rule freezes CSS
+   * animations). Those visitors get a gentler speed, and everyone has the Pause button.
+   */
+  const moving = !paused && !hold && visible && open === null;
+  const x = useRef(0);
   useEffect(() => {
-    const mq = matchMedia("(prefers-reduced-motion: reduce)");
-    const on = () => setReduced(mq.matches);
-    on();
-    mq.addEventListener("change", on);
-    return () => mq.removeEventListener("change", on);
-  }, []);
-
-  // Constant speed whatever the screen or number of cards: duration follows the set's width.
-  useEffect(() => {
-    const el = setRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => setDuration(Math.max(20, el.offsetWidth / SPEED)));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [set]);
+    const el = strip.current, one = setRef.current;
+    if (!el || !one || !moving) return;
+    const speed = matchMedia("(prefers-reduced-motion: reduce)").matches ? SPEED * 0.6 : SPEED;
+    let raf = 0, last = performance.now();
+    const frame = (now: number) => {
+      const dt = Math.min(now - last, 100); // no jump after a background tab
+      last = now;
+      const loop = one.offsetWidth;
+      if (loop > 0) {
+        x.current -= (speed * dt) / 1000;
+        if (x.current <= -loop) x.current += loop;
+        el.style.transform = `translate3d(${x.current}px,0,0)`;
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
+  }, [moving, set]);
 
   // Only animate while the strip is on screen.
   useEffect(() => {
@@ -194,16 +207,14 @@ export function GalleryMarquee({ items, categories }: { items: GalleryItem[]; ca
         </button>
       </div>
 
-      {reduced ? (
-        <div className="container flex flex-wrap justify-center gap-4">
-          {albums.map((a) => <AlbumCard key={a.id} album={a} start={start} paused={rotatePaused} onOpen={openAlbum} />)}
-        </div>
-      ) : (
-        <div className="group/strip relative [mask-image:linear-gradient(to_right,transparent,#000_6%,#000_94%,transparent)]">
-          <div
-            className="flex w-max animate-marquee will-change-transform group-hover/strip:[animation-play-state:paused] group-focus-within/strip:[animation-play-state:paused]"
-            style={{ animationDuration: `${duration}s`, animationPlayState: paused || !visible ? "paused" : undefined }}
-          >
+      <div
+        className="relative [mask-image:linear-gradient(to_right,transparent,#000_6%,#000_94%,transparent)]"
+        onPointerEnter={(e) => e.pointerType === "mouse" && setHold(true)}
+        onPointerLeave={() => setHold(false)}
+        onFocus={() => setHold(true)}
+        onBlur={(e) => !e.currentTarget.contains(e.relatedTarget as Node) && setHold(false)}
+      >
+          <div ref={strip} className="flex w-max will-change-transform">
             {[0, 1].map((copy) => (
               <div key={copy} ref={copy === 0 ? setRef : undefined} className="flex shrink-0 gap-4 pr-4 md:gap-5 md:pr-5">
                 {set.map((a, i) => (
@@ -212,8 +223,7 @@ export function GalleryMarquee({ items, categories }: { items: GalleryItem[]; ca
               </div>
             ))}
           </div>
-        </div>
-      )}
+      </div>
 
       {open && <Lightbox items={open.items} index={open.index} onClose={close} onNav={nav} categories={catLabels} />}
     </section>

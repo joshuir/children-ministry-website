@@ -29,14 +29,8 @@ const config: Config = {
       },
       keyframes: {
         float: { "0%,100%": { transform: "translateY(0) rotate(0)" }, "50%": { transform: "translateY(-12px) rotate(4deg)" } },
-        marquee: { from: { transform: "translate3d(0,0,0)" }, to: { transform: "translate3d(-50%,0,0)" } },
-        "media-in": { from: { opacity: "0" }, to: { opacity: "1" } },
       },
-      animation: {
-        float: "float 7s ease-in-out infinite",
-        marquee: "marquee 60s linear infinite",
-        "media-in": "media-in 900ms ease-in-out both",
-      },
+      animation: { float: "float 7s ease-in-out infinite" },
     },
   },
   plugins: [],
