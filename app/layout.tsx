@@ -7,8 +7,6 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Motion } from "@/components/Motion";
 import { Cursor } from "@/components/Cursor";
-import { Intro } from "@/components/Intro";
-import { introBoot } from "@/lib/intro";
 import { getClasses, getGroups, getPages, getSite, getTypography } from "@/lib/content";
 import { fontHref, typographyCss } from "@/lib/typography";
 
@@ -34,7 +32,6 @@ const motionBoot = `(function(){try{var d=document.documentElement;if(!window.ma
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [site, groups, pages, type, classes] = await Promise.all([getSite(), getGroups(), getPages(), getTypography(), getClasses()]);
   const fonts = fontHref(type);
-  const loader = pages.loader;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Church",
@@ -51,13 +48,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en-GB" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: motionBoot }} />
-        {loader.enabled && <script dangerouslySetInnerHTML={{ __html: introBoot(!!loader.everyVisit) }} />}
         <style id="cms-type" dangerouslySetInnerHTML={{ __html: typographyCss(type) }} />
         {fonts && <><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" /><link rel="stylesheet" href={fonts} /></>}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body className="flex min-h-screen flex-col">
-        {loader.enabled && <Intro words={loader.words} tagline={loader.tagline || site.shortName} />}
         <div id="scroll-progress" aria-hidden className="fixed inset-x-0 top-0 z-[60] h-1 origin-left scale-x-0 bg-gradient-to-r from-brand-500 via-sun-400 to-coral-400" />
         <a href="#main" className="skip-link rounded-full bg-ink px-5 py-3 font-semibold text-white">Skip to content</a>
         <Navbar site={site} groups={groups} classes={classes.map(({ id, name, group, ages }) => ({ id, name, group, ages }))} />

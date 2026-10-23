@@ -377,12 +377,6 @@ export const SECTIONS: { title: string; items: Section[] }[] = [
             { k: "title", label: "Title", type: "text", wide: true }, { k: "body", label: "Text", type: "text", wide: true },
             { k: "button", label: "Button", type: "text" }, { k: "thanks", label: "Thank-you message", type: "text", wide: true },
           ] },
-          { k: "loader", label: "Intro screen", type: "group", fields: [
-            { k: "enabled", label: "Show the intro screen", type: "checkbox" },
-            { k: "everyVisit", label: "Play on every page load", type: "checkbox", help: "Off = once per visit." },
-            { k: "tagline", label: "Small label", type: "text" },
-            { k: "words", label: "Big words (shown one after another)", type: "strings", itemLabel: "Word" },
-          ] },
         ],
       },
       {
