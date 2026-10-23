@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { CmsHero } from "@/components/ui";
-import { GalleryMarquee } from "@/components/GalleryMarquee";
-import { Gallery } from "@/components/Gallery";
+import { EventCarousel, GalleryMarquee } from "@/components/GalleryMarquee";
 import { getGallery, getGalleryCategories, getHeroText } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -16,8 +15,8 @@ export default async function GalleryPage() {
     <>
       <CmsHero hero={hero} tone="sun" />
       <GalleryMarquee items={items} categories={categories} />
-      <section className="py-14 md:py-20" aria-label="Photo and video gallery">
-        <div className="container"><Gallery items={items} categories={categories} /></div>
+      <section className="overflow-hidden py-14 md:py-20" aria-label="Photo and video gallery">
+        <EventCarousel items={items} categories={categories} />
       </section>
     </>
   );
