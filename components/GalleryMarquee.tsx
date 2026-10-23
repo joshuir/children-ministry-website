@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Pause, Play } from "lucide-react";
+import { Play } from "lucide-react";
 import { MediaFrame } from "./ui";
 import { Lightbox } from "./Gallery";
 import type { GalleryCategory, GalleryItem } from "@/lib/types";
@@ -11,7 +11,7 @@ import type { GalleryCategory, GalleryItem } from "@/lib/types";
  * gliding left at a constant speed forever (pure CSS transform, so it stays smooth on phones).
  * Each card crossfades to the album's next photo or video every 10 seconds; the next file is
  * preloaded and decoded first so the change never flashes. Hover or keyboard focus pauses the
- * glide; the pause button stops both the glide and the rotation (WCAG 2.2.2).
+ * glide.
  * Tap a card to open that album full screen at the photo it's showing.
  */
 
@@ -123,7 +123,6 @@ export function GalleryMarquee({ items, categories }: { items: GalleryItem[]; ca
   const root = useRef<HTMLElement>(null);
   const setRef = useRef<HTMLDivElement>(null);
   const [start] = useState(() => Math.floor(Date.now() / ROTATE_MS) * ROTATE_MS);
-  const [paused, setPaused] = useState(false);
   const [visible, setVisible] = useState(true);
   const [hold, setHold] = useState(false); // hover / keyboard focus
   const strip = useRef<HTMLDivElement>(null);
@@ -151,9 +150,9 @@ export function GalleryMarquee({ items, categories }: { items: GalleryItem[]; ca
   /*
    * The glide runs on requestAnimationFrame rather than a CSS animation, so it keeps moving on
    * computers with "animation effects" turned off (the site-wide reduced-motion rule freezes CSS
-   * animations). Those visitors get a gentler speed, and everyone has the Pause button.
+   * animations). Those visitors get a gentler speed.
    */
-  const moving = !paused && !hold && visible && open === null;
+  const moving = !hold && visible && open === null;
   const x = useRef(0);
   useEffect(() => {
     const el = strip.current, one = setRef.current;
@@ -190,21 +189,12 @@ export function GalleryMarquee({ items, categories }: { items: GalleryItem[]; ca
   const catLabels = useMemo(() => Object.fromEntries(categories.map((c) => [c.id, c.label])), [categories]);
 
   if (!albums.length) return null;
-  const rotatePaused = paused || !visible || open !== null;
+  const rotatePaused = !visible || open !== null;
 
   return (
     <section ref={root} aria-label="Gallery albums" aria-roledescription="carousel" className="relative overflow-hidden bg-white py-14 md:py-20">
-      <div className="container mb-6 flex items-center justify-between gap-4 md:mb-8">
+      <div className="container mb-6 md:mb-8">
         <p className="font-display text-sm font-bold uppercase tracking-[0.14em] text-ink-mute">Albums</p>
-        <button
-          type="button"
-          onClick={() => setPaused((p) => !p)}
-          aria-pressed={paused}
-          className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-paper px-4 text-sm font-semibold text-ink ring-1 ring-ink/10 transition-colors hover:bg-ink/5 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-brand-500"
-        >
-          {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-          {paused ? "Play" : "Pause"}
-        </button>
       </div>
 
       <div
