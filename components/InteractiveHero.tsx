@@ -63,7 +63,8 @@ export function InteractiveHero({ eyebrow, title, highlight, body, tone = "blue"
     <section ref={root} className={clsx("relative overflow-hidden pb-14 pt-28 md:pb-20 md:pt-36", bg[tone], dark && "text-white")}>
       <div aria-hidden data-hero="bg" className="pointer-events-none absolute inset-0 origin-top">
         <div data-depth="-14" className="absolute inset-0">
-          <svg className="absolute inset-0 h-full w-full opacity-60"><defs><pattern id="ph-dots" width="26" height="26" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill={dark ? "#3A4566" : "#B9CEFF"} /></pattern></defs><rect width="100%" height="100%" fill="url(#ph-dots)" /></svg>
+          {/* Plain CSS dots (an SVG <pattern> here was drawn as a black block by iOS Safari once the layer was transformed). */}
+          <div className="absolute inset-0 opacity-60" style={{ backgroundImage: `radial-gradient(circle at 2px 2px, ${dark ? "#3A4566" : "#B9CEFF"} 1.5px, transparent 2px)`, backgroundSize: "26px 26px" }} />
         </div>
         <div data-depth="-26" className="absolute -right-24 top-0 h-[460px] w-[460px] rounded-full" style={{ background: `radial-gradient(circle, ${glow[tone]} 0%, transparent 65%)` }} />
       </div>

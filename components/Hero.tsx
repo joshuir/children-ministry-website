@@ -59,7 +59,7 @@ export function Hero({ hero, site, lesson }: { hero: HomeContent["hero"]; site: 
       {/* background layers — drift away from the cursor */}
       <div aria-hidden data-hero="bg" className="pointer-events-none absolute inset-0 origin-top">
         <div data-depth="-14" className="absolute inset-0">
-          <svg className="absolute inset-0 h-full w-full opacity-[0.5]"><defs><pattern id="hero-dots" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.6" fill="#B9CEFF" /></pattern></defs><rect width="100%" height="100%" fill="url(#hero-dots)" /></svg>
+          <div className="absolute inset-0 opacity-[0.5]" style={{ backgroundImage: "radial-gradient(circle at 2px 2px, #B9CEFF 1.6px, transparent 2.1px)", backgroundSize: "28px 28px" }} />
         </div>
         <div data-depth="-26" className="absolute -right-32 top-10 h-[480px] w-[480px] rounded-full bg-brand-100 blur-2xl" />
       </div>

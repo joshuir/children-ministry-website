@@ -107,7 +107,8 @@ export function heroScroll(root: HTMLElement, strength = 1) {
   if (content.length) tl.to(content, { y: -90 * strength, opacity: 0.15 }, 0);
   if (visual.length) tl.to(visual, { y: -50 * strength }, 0);
   if (media.length) tl.to(media, { scale: 1 + 0.08 * strength }, 0);
-  if (bg.length) tl.to(bg, { scale: 1 + 0.06 * strength, yPercent: 6 * strength }, 0);
+  // Background drift is desktop-only: scaling this big layer on phones made iOS Safari paint black blocks.
+  if (bg.length && strength >= 1 && matchMedia("(hover: hover) and (pointer: fine)").matches) tl.to(bg, { scale: 1 + 0.06 * strength, yPercent: 6 * strength }, 0);
   deco.forEach((d, i) => tl.to(d, { y: -(70 + i * 45) * strength }, 0));
   return tl;
 }

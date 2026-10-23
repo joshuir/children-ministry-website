@@ -83,7 +83,7 @@ export function Navbar({ site, groups, classes }: { site: SiteSettings; groups: 
       <nav
         aria-label="Main"
         className={clsx(
-          "relative z-[2] mx-auto flex max-w-[1240px] items-center justify-between gap-4 rounded-full py-2 pl-4 pr-2 transition-all duration-300 md:pl-5",
+          "relative z-[2] mx-auto flex max-w-[1240px] items-center justify-between gap-4 rounded-full py-2 pl-4 pr-2 transition-[background-color,box-shadow] duration-300 md:pl-5",
           scrolled || open || megaOpen ? "bg-white/90 shadow-card ring-1 ring-ink/5 backdrop-blur-xl" : "bg-white/0",
         )}
       >
