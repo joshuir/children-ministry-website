@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --font-display: "Bricolage Grotesque Variable"; --font-body: "Nunito Sans Variable";
+    --body-size: 18px; --body-weight: 500; --heading-weight: 800; --h-scale: 1; --h-case: none; --h-track: -0.02em;
+  }
+  html { -webkit-text-size-adjust: 100%; font-size: calc(var(--body-size) * 0.8889); }
+  body { @apply bg-paper font-sans text-ink antialiased; font-size: var(--body-size); font-weight: var(--body-weight); line-height: 1.6; overflow-x: hidden; }
+  /* Editable typography (CMS → Typography): bold, visible headings everywhere. */
+  :is(h1, h2, h3).font-display { font-weight: var(--heading-weight); }
+  :is(h1, h2).font-display:not(.uppercase) { letter-spacing: var(--h-track); text-transform: var(--h-case); }
+  b, strong { font-weight: 800; }
+  h1, h2, h3, h4 { text-wrap: balance; }
+  ::selection { background: #FFD966; color: #0B1530; }
+  :focus-visible { outline: 3px solid #2563EB; outline-offset: 3px; }
+  img, svg, video { max-width: 100%; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+  /* Content stays hidden only until GSAP takes over (script in layout); a timeout always reveals it. */
+  /* opacity only — a CSS transform here would be read by GSAP as a starting offset */
+  .motion-pending [data-reveal], .motion-pending [data-split], .motion-pending [data-hero] { opacity: 0; }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+}
+
+/* Decorative shapes stay still; they only move with the pointer / scroll (no constant floating). */
+.float-shape { }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
+
+.skip-link { position: absolute; left: 1rem; top: -100px; z-index: 100; }
+.skip-link:focus { top: 1rem; }
+
+/* Squiggle underline used on headline highlights */
+.squiggle { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='10' viewBox='0 0 40 10'%3E%3Cpath d='M0 6 Q5 1 10 6 T20 6 T30 6 T40 6' fill='none' stroke='%23FFC53D' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: repeat-x; background-position: 0 100%; background-size: 40px 10px; padding-bottom: 0.12em; }
+
+@keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.5) rotate(-10deg); } 100% { transform: scale(1); } }
+@keyframes eq { 0%,100% { transform: scaleY(.4); } 50% { transform: scaleY(1); } }
+
+@keyframes menu-in { from { opacity: 0; transform: translateY(-4px) scale(.96); } to { opacity: 1; transform: none; } }
+
+/* ---------- Interactive polish (driven by components/Motion.tsx) ---------- */
+.btn { position: relative; overflow: hidden; isolation: isolate; -webkit-tap-highlight-color: transparent; }
+/* Light sweep: GSAP animates --sweep on hover (see buttonHover in lib/motion.ts). */
+.btn::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; transform: translateX(var(--sweep, -130%));
+  background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,.4) 50%, transparent 75%);
+}
+.btn-label { display: inline-block; }
+.btn:focus-visible { outline: 3px solid #2563EB; outline-offset: 3px; }
+.ripple { position: absolute; border-radius: 9999px; background: currentColor; pointer-events: none; z-index: -1; }
+.split-w { display: inline-block; }
+
+/* ---------- Cards (hover choreography in cardHover(), lib/motion.ts) ---------- */
+[data-card] { position: relative; isolation: isolate; transition: box-shadow .45s cubic-bezier(.2,.8,.2,1), background-color .3s, border-color .3s; }
+[data-card]::after {
+  content: ""; position: absolute; inset: 0; z-index: 2; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .35s;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(79,168,255,.16), transparent 45%);
+}
+[data-card].is-lit::after { opacity: 1; }
+[data-card].is-lit { box-shadow: 0 1px 2px rgba(11,21,48,.06), 0 30px 60px -28px rgba(11,21,48,.35); }
+[data-card-media] { overflow: hidden; }
+[data-card-media] > * { transform-origin: 50% 50%; }
+[data-card]:focus-visible { outline: 3px solid #2563EB; outline-offset: 4px; }
+/* Touch devices: crisp press feedback instead of hover. */
+@media (hover: none) {
+  [data-card]:active { transform: scale(.985); transition: transform .12s; }
+}
+
+/* Intro screen: hidden instantly when it has already played this session. */
+.intro-skip #intro { display: none !important; }
+/* Subtle icon nudge on menu hover */
+@media (hover: hover) and (pointer: fine) { [data-navlink]:hover .nav-ico { transform: translateY(-1px) rotate(-8deg) scale(1.08); } }
+
+/* ---------- Custom cursor (components/Cursor.tsx) ---------- */
+.cm-cursor { display: none; }
+.has-cursor .cm-cursor { display: block; }
+.has-cursor, .has-cursor * { cursor: none !important; }
+.has-cursor :is(input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]), textarea, select, [contenteditable=true]) { cursor: text !important; }
+.has-cursor select { cursor: pointer !important; }
+.cm-cursor-dot, .cm-cursor-ring { position: fixed; left: 0; top: 0; z-index: 9999; pointer-events: none; border-radius: 9999px; opacity: 0; will-change: transform; }
+.cm-cursor-dot { width: 8px; height: 8px; background: #0B1530; }
+.cm-cursor-ring {
+  /* Drawn at its largest size (the label bubble) and scaled down with transforms, so size changes never trigger layout. */
+  width: 82px; height: 82px; display: flex; align-items: center; justify-content: center;
+  border: 3.6px solid rgba(11, 21, 48, .35); background: rgba(255, 255, 255, 0);
+  transition: background-color .25s, border-color .25s, color .25s, box-shadow .25s;
+}
+.cm-cursor-ring[data-mode="link"] { background: rgba(37, 99, 235, .12); border-color: rgba(37, 99, 235, .55); }
+.cm-cursor-ring[data-mode="label"] { background: #2563EB; border-color: #2563EB; color: #fff; box-shadow: 0 10px 30px -10px rgba(37, 99, 235, .7); }
+.cm-cursor-ring[data-mode="scroll"] { background: #FFC53D; border-color: #0B1530; color: #0B1530; box-shadow: 0 8px 24px -10px rgba(11, 21, 48, .5); }
+.cm-cursor-label { position: absolute; font: 800 13px/1 var(--font-display), sans-serif; letter-spacing: .02em; text-transform: uppercase; white-space: nowrap; opacity: 0; }
+.cm-cursor-arrow { position: absolute; display: flex; opacity: 0; transition: transform .25s ease; }
+/* "difference" blending keeps the plain ring and dot visible on light and dark sections alike */
+.cm-cursor-dot { background: #fff; mix-blend-mode: difference; }
+.cm-cursor-ring[data-mode="default"] { border-color: rgba(255,255,255,.85); mix-blend-mode: difference; }
+
+/* Underline that draws in on hover for text links */
+.link-draw { background-image: linear-gradient(currentColor, currentColor); background-size: 0% 2px; background-repeat: no-repeat; background-position: 0 100%; transition: background-size .35s cubic-bezier(.2,.8,.2,1); }
+.link-draw:hover { background-size: 100% 2px; }
+
+/* Instagram-style double-tap heart */
+.dt-heart { position: absolute; left: 50%; top: 50%; z-index: 30; pointer-events: none; width: 110px; height: 110px; margin: -55px 0 0 -55px; filter: drop-shadow(0 10px 24px rgba(0,0,0,.35)); }
+
+/* Home hero write-on headline */
+.hero-type { display: inline-block; min-height: 1em; white-space: pre; }
+.hero-caret { display: inline-block; width: .09em; height: .82em; margin-left: .06em; border-radius: 4px; transform: translateY(.06em); animation: caret-blink 1s steps(1) infinite; }
+.hero-caret.is-typing { animation: none; opacity: 1; }
+@keyframes caret-blink { 50% { opacity: 0; } }
