@@ -1,11 +1,12 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import clsx from "clsx";
-import { ArrowUpRight, CalendarDays, GraduationCap, House, Images, Info, Menu, MessageCircle, Newspaper, X, type LucideIcon } from "lucide-react";
+import { Gamepad2, ArrowUpRight, CalendarDays, GraduationCap, House, Images, Info, Menu, MessageCircle, Newspaper, X, type LucideIcon } from "lucide-react";
 import { Logo, buttonClass } from "./ui";
 import { Scene } from "./Scene";
 import type { ClassInfo, GroupInfo, SiteSettings } from "@/lib/types";
@@ -14,6 +15,7 @@ const links: { href: string; label: string; icon: LucideIcon; mega?: boolean }[]
   { href: "/", label: "Home", icon: House },
   { href: "/about/", label: "About", icon: Info },
   { href: "/classes/", label: "Classes", icon: GraduationCap, mega: true },
+  { href: "/learn/", label: "Games", icon: Gamepad2 },
   { href: "/events/", label: "Events", icon: CalendarDays },
   { href: "/blog/", label: "Blog", icon: Newspaper },
   { href: "/gallery/", label: "Gallery", icon: Images },
@@ -71,7 +73,7 @@ export function Navbar({ site, groups, classes }: { site: SiteSettings; groups: 
 
   // Hover screen entrance: tiles cascade in.
   useGSAP(() => {
-    if (!mega || !panel.current || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!mega || !panel.current || isReduced()) return;
     gsap.fromTo("[data-mega-tile]", { y: 18, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.45, stagger: 0.05, ease: "power3.out", overwrite: true });
   }, { scope: panel, dependencies: [mega] });
 

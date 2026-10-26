@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useRef } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 
@@ -26,7 +27,7 @@ export function FooterWordmark({ text }: { text: string }) {
     document.fonts?.ready.then(fit).catch(() => {});
 
       const mm = gsap.matchMedia();
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
+      if (!isReduced()) mm.add("all", () => {
         const letters = gsap.utils.toArray<HTMLElement>(".fw-l");
         gsap.from(letters, { yPercent: 110, rotation: (i) => (i % 2 ? 8 : -8), duration: 0.9, ease: "expo.out", stagger: { each: 0.035, from: "start" }, scrollTrigger: { trigger: b, start: "top 95%", once: true } });
         const hop = contextSafe!((e: PointerEvent) => {

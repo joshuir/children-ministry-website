@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useRef } from "react";
 import { usePathname } from "next/navigation";
 import { gsap, useGSAP } from "@/lib/gsap";
@@ -24,7 +25,7 @@ export function Cursor() {
 
   useGSAP(() => {
     const html = document.documentElement;
-    if (off || !matchMedia("(hover: hover) and (pointer: fine)").matches || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (off || !matchMedia("(hover: hover) and (pointer: fine)").matches || isReduced()) {
       html.classList.remove("has-cursor");
       return;
     }

@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useRef } from "react";
 import clsx from "clsx";
 import { gsap, useGSAP } from "@/lib/gsap";
@@ -31,7 +32,7 @@ export function WelcomeStats({ welcome, stats }: { welcome: HomeContent["welcome
     const sig = root.current?.querySelector<SVGPathElement>(".ws-sig path");
     if (!sig) return;
     const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
+    if (!isReduced()) mm.add("all", () => {
       const len = sig.getTotalLength();
       gsap.fromTo(sig, { strokeDasharray: len, strokeDashoffset: len }, { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut", scrollTrigger: { trigger: sig, start: "top 85%", once: true } });
     });

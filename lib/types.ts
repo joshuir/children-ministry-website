@@ -241,3 +241,31 @@ export interface Typography {
   headingCase: "none" | "uppercase";
   letterSpacing: number; // em, headings
 }
+
+/* ------------------------------------------------------------ Bible learning games */
+
+export type QuizTrack = "scripture" | "verses" | "characters" | "places" | "writing";
+/** 1 = ages 3–6, 2 = ages 7–9, 3 = ages 10–13 */
+export type QuizLevel = 1 | 2 | 3;
+/**
+ * choice    pick the right answer (answer + options as distractors)
+ * truefalse answer is "true" or "false"
+ * fill      complete the sentence: prompt contains "___"; options are distractor words
+ * order     tap the words of `answer` in the right order (a verse builder)
+ * write     type the answer; `answer` may list alternatives separated by "|"
+ * reflect   open writing prompt — any thoughtful answer is welcome (nothing is stored)
+ */
+export type QuizKind = "choice" | "truefalse" | "fill" | "order" | "write" | "reflect";
+
+export interface QuizQuestion {
+  id: string;
+  track: QuizTrack;
+  level: QuizLevel;
+  kind: QuizKind;
+  prompt: string;
+  answer: string;
+  options?: string[];
+  reference?: string;
+  explain?: string;
+  hidden?: boolean;
+}

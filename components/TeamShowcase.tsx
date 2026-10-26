@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
@@ -39,7 +40,7 @@ export function TeamShowcase({ teachers, classes, groups, text, limit, cta }: {
   // Portrait wipes in and the credentials slide up each time the active name changes.
   useGSAP(() => {
     if (first.current) { first.current = false; return; }
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (isReduced()) return;
     if (photo.current) gsap.fromTo(photo.current, { clipPath: "inset(0 0 100% 0 round 24px)" }, { clipPath: "inset(0 0 0% 0 round 24px)", duration: 0.6, ease: "expo.out", overwrite: true });
     if (info.current) gsap.fromTo(info.current.children, { y: 14, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.4, stagger: 0.04, ease: "power2.out", overwrite: true });
   }, { dependencies: [active?.id] });

@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useEffect, useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import clsx from "clsx";
@@ -56,7 +57,7 @@ export function ReactionBar({
   // Bump the total whenever it changes (someone else reacting shows up live).
   const lastTotal = useRef(total);
   useGSAP(() => {
-    if (lastTotal.current !== total && totalRef.current && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (lastTotal.current !== total && totalRef.current && !isReduced()) {
       gsap.fromTo(totalRef.current, { scale: 1.35, color: "#2563EB" }, { scale: 1, color: "inherit", duration: 0.5, ease: "back.out(3)" });
     }
     lastTotal.current = total;
@@ -64,7 +65,7 @@ export function ReactionBar({
 
   function fly(emoji: string) {
     const host = likeBtn.current;
-    if (!host || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!host || isReduced()) return;
     for (let i = 0; i < 7; i++) {
       const el = document.createElement("span");
       el.textContent = emoji;
@@ -176,7 +177,7 @@ export function ReactionBar({
             onKeyDown={(e) => { if (e.key === "ArrowUp") { e.preventDefault(); setPicker(true); } }}
             className={clsx(btn, "w-full", mine && reactionMeta[mine].color)}
           >
-            <span key={burst} className={clsx("text-lg leading-none", burst > 0 && "motion-safe:animate-[pop_.4s_ease-out]")}>{mine ? reactionMeta[mine].emoji : "🤍"}</span>
+            <span key={burst} className={clsx("text-lg leading-none", burst > 0 && "lively:animate-[pop_.4s_ease-out]")}>{mine ? reactionMeta[mine].emoji : "🤍"}</span>
             {mine ? reactionMeta[mine].label : "Like"}
           </button>
         </div>

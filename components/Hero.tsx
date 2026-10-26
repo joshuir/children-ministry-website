@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { gsap, useGSAP, whileVisible } from "@/lib/gsap";
-import { MQ, heroIntro, heroMouseInteraction, heroScroll, intensity, type Tier } from "@/lib/motion";
+import { MQ, heroIntro, heroMouseInteraction, heroScroll, intensity, tierOf } from "@/lib/motion";
 import { ArrowRight, BookOpen, Heart, Users } from "lucide-react";
 import { Button } from "./ui";
 import { Scene } from "./Scene";
@@ -29,10 +29,15 @@ export function Hero({ hero, site, lesson }: { hero: HomeContent["hero"]; site: 
   useGSAP(() => {
     const el = root.current!;
     const mm = gsap.matchMedia();
-    mm.add({ desktop: MQ.desktop, tablet: MQ.tablet, mobile: MQ.mobile, reduce: MQ.reduce }, (ctx) => {
-      const t = ctx.conditions as Tier;
+    mm.add({ desktop: MQ.desktop, tablet: MQ.tablet, mobile: MQ.mobile }, (ctx) => {
+      const t = tierOf(ctx.conditions);
       const k = intensity(t);
-      if (t.reduce) return; // content is fully visible; no motion at all
+      if (t.reduce) {
+        // Calm variant: a soft fade-in; the rotating words are shown as one still line instead.
+        const intro = heroIntro(el, true);
+        const off = whenIntroDone(() => intro.play());
+        return () => off();
+      }
 
       // 1. Cinematic entrance: visual → headline → copy → CTAs → details, then the write-on loop begins.
       const intro = heroIntro(el);
@@ -86,9 +91,9 @@ export function Hero({ hero, site, lesson }: { hero: HomeContent["hero"]; site: 
                 <span className="block">
                   <span className="inline-block overflow-hidden pb-[0.08em] align-bottom">
                     <span data-hero="word" className="inline-flex items-baseline">
-                      <span className="hero-type motion-reduce:hidden" data-words={rotate.join("|")} style={{ color: typeTones[0] }}>{rotate[0]}</span>
-                      <span className="hidden text-brand-500 motion-reduce:inline">{still}</span>
-                      <span className="hero-caret motion-reduce:hidden" style={{ background: typeTones[0] }} />
+                      <span className="hero-type calm:hidden" data-words={rotate.join("|")} style={{ color: typeTones[0] }}>{rotate[0]}</span>
+                      <span className="hidden text-brand-500 calm:inline">{still}</span>
+                      <span className="hero-caret calm:hidden" style={{ background: typeTones[0] }} />
                     </span>
                   </span>
                 </span>

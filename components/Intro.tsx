@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { INTRO_KEY as KEY } from "@/lib/intro";
@@ -47,7 +48,7 @@ export function Intro({ words, tagline }: { words: string[]; tagline: string }) 
     };
     document.body.style.overflow = "hidden";
 
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (isReduced()) {
       txt.textContent = list[list.length - 1];
       gsap.set([q("[data-intro-sub]"), caret], { autoAlpha: 1 });
       gsap.set(steps, { scaleX: 1 });

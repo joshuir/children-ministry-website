@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useRef, type PointerEvent } from "react";
 import clsx from "clsx";
 import { gsap, useGSAP } from "@/lib/gsap";
@@ -19,7 +20,7 @@ function Tile({ s, i }: { s: SocialLink; i: number }) {
   const icon = useRef<HTMLSpanElement>(null);
   const arrow = useRef<HTMLSpanElement>(null);
   const { contextSafe } = useGSAP();
-  const ok = () => typeof window !== "undefined" && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const ok = () => typeof window !== "undefined" && !isReduced();
 
   function at(e: PointerEvent<HTMLAnchorElement>) {
     const r = e.currentTarget.getBoundingClientRect();

@@ -19,9 +19,7 @@
   :focus-visible { outline: 3px solid #2563EB; outline-offset: 3px; }
   img, svg, video { max-width: 100%; }
 
-  @media (prefers-reduced-motion: no-preference) {
-    html { scroll-behavior: smooth; }
-  }
+  html[data-motion="full"] { scroll-behavior: smooth; }
   /* Content stays hidden only until GSAP takes over (script in layout); a timeout always reveals it. */
   /* opacity only — a CSS transform here would be read by GSAP as a starting offset */
   .motion-pending [data-reveal], .motion-pending [data-split], .motion-pending [data-hero] { opacity: 0; }
@@ -37,8 +35,11 @@
 /* Decorative shapes stay still; they only move with the pointer / scroll (no constant floating). */
 .float-shape { }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+/* Calm mode (device "reduce motion" setting, or Animations: Off in the footer): no looping or moving
+   CSS animations. Short colour/opacity transitions remain so buttons still respond to touch and hover. */
+html[data-motion="reduced"] *, html[data-motion="reduced"] *::before, html[data-motion="reduced"] *::after {
+  animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important;
+  transition-property: color, background-color, border-color, outline-color, opacity, box-shadow !important;
 }
 
 .skip-link { position: absolute; left: 1rem; top: -100px; z-index: 100; }

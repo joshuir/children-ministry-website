@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import clsx from "clsx";
 import { gsap, useGSAP } from "@/lib/gsap";
@@ -25,7 +26,7 @@ function LiveBadge({ lastSync, online }: { lastSync: number; online: boolean }) 
   return (
     <span className={clsx("inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-[0.08em]", online ? "bg-coral-100 text-coral-600" : "bg-ink/5 text-ink-mute")} role="status">
       <span className="relative flex h-2.5 w-2.5">
-        {online && <span className="absolute inline-flex h-full w-full rounded-full bg-coral-400 opacity-75 motion-safe:animate-ping" />}
+        {online && <span className="absolute inline-flex h-full w-full rounded-full bg-coral-400 opacity-75 lively:animate-ping" />}
         <span className={clsx("relative inline-flex h-2.5 w-2.5 rounded-full", online ? "bg-coral-400" : "bg-ink/30")} />
       </span>
       {online ? <>Live<span className="font-semibold normal-case tracking-normal text-coral-600/70" suppressHydrationWarning>· {secs < 6 ? "just now" : `${secs}s ago`}</span></> : "Offline — retrying"}
@@ -78,7 +79,7 @@ export function Feed({ initial, teachers, sidebar }: { initial: Post[]; teachers
 
   // The "new posts" pill bounces in when posts arrive while reading further down.
   useGSAP(() => {
-    if (queued.length && pill.current && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (queued.length && pill.current && !isReduced()) {
       gsap.fromTo(pill.current, { y: -40, autoAlpha: 0, scale: 0.8 }, { y: 0, autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(2)" });
     }
   }, { dependencies: [queued.length] });
@@ -86,7 +87,7 @@ export function Feed({ initial, teachers, sidebar }: { initial: Post[]; teachers
   function showQueued() {
     setPosts((cur) => sortPosts([...queued, ...cur.filter((p) => !queued.some((q) => q.id === p.id))]));
     setQueued([]);
-    window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    window.scrollTo({ top: 0, behavior: isReduced() ? "auto" : "smooth" });
   }
 
   const shown = posts.filter((p) => filter === "all" || p.kind === filter);

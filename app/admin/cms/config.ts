@@ -1,8 +1,9 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BookOpen, CalendarDays, Contact, GraduationCap, Home, Images, Info, LayoutDashboard, MessageSquareText, Inbox,
-  Newspaper, Share2, Smartphone, Users, History, FolderOpen, Rss, Layers, Type, PanelsTopLeft, HelpCircle, KeyRound,
+  Newspaper, Share2, Smartphone, Users, History, FolderOpen, Rss, Layers, Type, PanelsTopLeft, HelpCircle, KeyRound, Gamepad2,
 } from "lucide-react";
+import { LEVELS, TRACKS } from "@/content/learn";
 import { FONT_CHOICES } from "@/content/pages";
 import { FAQ_CATEGORIES } from "@/content/faqs";
 import type { CmsContent } from "@/lib/cms/schema";
@@ -15,6 +16,10 @@ const classOpts = (c: CmsContent): Opt[] => c.classes.map((t) => ({ value: t.id,
 const groupOpts = (c: CmsContent): Opt[] => c.groups.map((t) => ({ value: t.id, label: t.name }));
 const catOpts = (c: CmsContent): Opt[] => c.galleryCategories.map((t) => ({ value: t.id, label: t.label }));
 const today = () => new Date().toISOString().slice(0, 10);
+const QUIZ_KINDS: Opt[] = [
+  { value: "choice", label: "Multiple choice" }, { value: "truefalse", label: "True or false" }, { value: "fill", label: "Fill the gap" },
+  { value: "order", label: "Build the verse" }, { value: "write", label: "Type the answer" }, { value: "reflect", label: "Open writing" },
+];
 
 const verse: Field = { k: "memoryVerse", label: "Memory verse", type: "group", fields: [{ k: "text", label: "Verse", type: "textarea", rows: 2, wide: true }, { k: "reference", label: "Reference", type: "text" }] };
 
@@ -224,6 +229,27 @@ export const SECTIONS: { title: string; items: Section[] }[] = [
           { k: "answer", label: "Answer", type: "textarea", rows: 4, wide: true, required: true, help: "Keep it short and friendly — two or three sentences." },
           { k: "category", label: "Topic", type: "select", options: FAQ_CATEGORIES },
           { k: "hidden", label: "Hide from the website", type: "checkbox" },
+        ],
+      },
+      {
+        kind: "collection", id: "quiz", label: "Bible games", icon: Gamepad2, path: "quiz",
+        blurb: "Questions for the Bible learning games. Each child sees every question once before any repeats, so the more you add, the longer the games last. A question that repeats another one's wording is skipped automatically.",
+        itemTitle: (v) => v.prompt || "New question",
+        itemSub: (v) => `${TRACKS.find((t) => t.id === v.track)?.title ?? v.track} · ${LEVELS.find((l) => l.id === Number(v.level))?.ages ?? ""} · ${QUIZ_KINDS.find((k) => k.value === v.kind)?.label ?? v.kind}${v.hidden ? " · hidden" : ""}`,
+        uniqueBy: (v) => v.id,
+        newItem: () => ({ id: "q" + Date.now().toString(36), track: "scripture", level: 1, kind: "choice", prompt: "", answer: "", options: ["", "", ""], reference: "" }),
+        filter: { label: "Game", options: () => TRACKS.map((t) => ({ value: t.id, label: t.title })), match: (v, val) => v.track === val },
+        fields: [
+          { k: "prompt", label: "Question", type: "textarea", rows: 2, wide: true, required: true, help: "For “Fill the gap”, write ___ where the missing word goes. For “Build the verse”, write a short instruction such as “Build the verse.”" },
+          { k: "track", label: "Game", type: "select", options: TRACKS.map((t) => ({ value: t.id, label: t.title })) },
+          { k: "level", label: "Age group", type: "select", options: LEVELS.map((l) => ({ value: String(l.id), label: `${l.label} (${l.ages})` })) },
+          { k: "kind", label: "Question type", type: "select", options: () => QUIZ_KINDS },
+          { k: "answer", label: "Correct answer", type: "text", wide: true, help: "Multiple choice / fill the gap: the right answer. True or false: type true or false. Build the verse: the whole verse. Type the answer: separate other accepted answers with | (e.g. 12|twelve). Leave empty for open writing." },
+          { k: "options", label: "Wrong answers", type: "strings", itemLabel: "Wrong answer", help: "For multiple choice and fill the gap — up to three believable wrong answers." },
+          { k: "reference", label: "Bible reference", type: "text", placeholder: "Luke 10:27" },
+          { k: "explain", label: "Shown after answering (optional)", type: "textarea", rows: 2, wide: true },
+          { k: "id", label: "ID", type: "text", help: "Must be unique. Changing it makes children see the question again." },
+          { k: "hidden", label: "Hide this question", type: "checkbox" },
         ],
       },
       {

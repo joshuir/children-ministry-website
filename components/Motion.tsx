@@ -1,9 +1,10 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
-import { MQ, buttonHover, cardHover, groupLeave, sectionReveal, type Tier } from "@/lib/motion";
+import { MQ, buttonHover, cardHover, groupLeave, sectionReveal, tierOf } from "@/lib/motion";
 
 /**
  * Site-wide motion, built from the shared GSAP system in lib/motion.ts.
@@ -16,7 +17,7 @@ import { MQ, buttonHover, cardHover, groupLeave, sectionReveal, type Tier } from
  * Everything is set up inside gsap.matchMedia(), so it adapts per device and fully reverts.
  */
 
-const reduced = () => window.matchMedia(MQ.reduce).matches;
+const reduced = () => isReduced();
 
 function splitWords(el: HTMLElement) {
   if (el.dataset.splitDone) return Array.from(el.querySelectorAll<HTMLElement>(".split-w"));
@@ -47,16 +48,13 @@ function useScrollMotion(pathname: string) {
   useEffect(() => {
     const root = document.documentElement;
     const mm = gsap.matchMedia();
-    mm.add({ desktop: MQ.desktop, tablet: MQ.tablet, mobile: MQ.mobile, reduce: MQ.reduce }, (ctx) => {
-      const t = ctx.conditions as Tier;
-      if (t.reduce) {
-        gsap.set("[data-reveal]", { clearProps: "all" });
-        root.classList.remove("motion-pending");
-        return;
-      }
+    mm.add({ desktop: MQ.desktop, tablet: MQ.tablet, mobile: MQ.mobile }, (ctx) => {
+      const t = tierOf(ctx.conditions);
+      const calm = !!t.reduce;
 
-      // Headings: words rise in, staggered.
+      // Headings: words rise in, staggered (calm: they simply fade in together).
       gsap.utils.toArray<HTMLElement>("[data-split]").forEach((h) => {
+        if (calm) { gsap.fromTo(h, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6, ease: "power1.out", scrollTrigger: { trigger: h, start: "top 92%", once: true } }); return; }
         const words = splitWords(h);
         gsap.fromTo(words, { yPercent: 60, autoAlpha: 0 }, {
           yPercent: 0, autoAlpha: 1, duration: 0.8, ease: "power3.out", stagger: 0.04,
@@ -85,8 +83,8 @@ function useScrollMotion(pathname: string) {
         gsap.fromTo(words, { opacity: 0.2 }, { opacity: 1, stagger: 0.08, ease: "none", scrollTrigger: { trigger: el, start: "top 85%", end: "bottom 50%", scrub: 0.6 } });
       });
 
-      // Photos drift slightly inside their frames — desktop only, to keep phones light.
-      if (t.desktop) {
+      // Photos drift slightly inside their frames — desktop only, never in calm mode.
+      if (t.desktop && !calm) {
         gsap.utils.toArray<HTMLElement>('[data-reveal="image"]').forEach((frame) => {
           const inner = frame.firstElementChild as HTMLElement | null;
           if (!inner || frame.offsetHeight < 160 || /transition|hover:/.test(inner.className)) return;
@@ -94,7 +92,7 @@ function useScrollMotion(pathname: string) {
         });
       }
 
-      gsap.utils.toArray<HTMLElement>("[data-eyebrow-line]").forEach((el) => {
+      if (!calm) gsap.utils.toArray<HTMLElement>("[data-eyebrow-line]").forEach((el) => {
         gsap.fromTo(el, { scaleX: 0 }, { scaleX: 1, transformOrigin: "left center", duration: 0.9, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 90%", once: true } });
       });
 
@@ -114,8 +112,10 @@ function usePointerMotion() {
     const mm = gsap.matchMedia();
 
     // Desktop + tablet with a real pointer: CTA and card hover, spotlight, magnetic CTAs (desktop only).
-    mm.add({ desktop: MQ.desktop, hover: "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)" }, (ctx) => {
-      const { desktop, hover } = ctx.conditions as { desktop: boolean; hover: boolean };
+    // Hover feedback stays in calm mode (it only answers the visitor's own pointer); magnetic pull does not.
+    mm.add({ desktop: MQ.desktop, hover: MQ.finePointer }, (ctx) => {
+      const { hover } = ctx.conditions as { desktop: boolean; hover: boolean };
+      const desktop = !!(ctx.conditions as { desktop: boolean }).desktop && !isReduced();
       if (!hover) return;
       let btn: HTMLElement | null = null, card: HTMLElement | null = null, group: HTMLElement | null = null;
       let mq: { x: (v: number) => void; y: (v: number) => void } | null = null;
@@ -173,7 +173,7 @@ function usePointerMotion() {
     });
 
     // Keyboard users get the same card emphasis on focus (any device, unless reduced motion).
-    mm.add(MQ.motion, () => {
+    if (!isReduced()) mm.add("all", () => {
       const onFocus = (e: FocusEvent) => {
         const c = (e.target as Element).closest?.<HTMLElement>("[data-card]");
         if (c && (e.target as HTMLElement).matches(":focus-visible")) cardHover(c).enter();

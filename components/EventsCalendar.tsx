@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
@@ -69,7 +70,7 @@ export function EventDetail({ e, address, compact }: { e: EventItem; address: st
 export function EventOrbs({ events, activeId, onPick, label = "Upcoming events" }: { events: EventItem[]; activeId?: string | null; onPick: (e: EventItem) => void; label?: string }) {
   const row = useRef<HTMLUListElement>(null);
   useGSAP(() => {
-    if (!row.current || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!row.current || isReduced()) return;
     gsap.fromTo(row.current.querySelectorAll("[data-orb]"), { autoAlpha: 0, y: 10, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: "back.out(1.6)", stagger: 0.05 });
   }, { scope: row, dependencies: [events.map((e) => e.id).join()] });
   if (!events.length) return null;
@@ -158,7 +159,7 @@ export function EventsCalendar({ events, address, mode = "full", initialMonth, c
   }
 
   useGSAP(() => {
-    if (!grid.current || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!grid.current || isReduced()) return;
     const cells = grid.current.querySelectorAll("[data-cell]");
     gsap.fromTo(cells, { x: dir.current * 24, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.35, ease: "power2.out", stagger: { each: 0.008, from: dir.current < 0 ? "end" : "start" } });
   }, { scope: grid, dependencies: [cursor, view] });

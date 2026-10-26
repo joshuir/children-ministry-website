@@ -3,7 +3,7 @@
 import { useRef, type ReactNode } from "react";
 import clsx from "clsx";
 import { gsap, useGSAP, Draggable } from "@/lib/gsap";
-import { MQ, heroIntro, heroMouseInteraction, heroScroll, intensity, type Tier } from "@/lib/motion";
+import { MQ, heroIntro, heroMouseInteraction, heroScroll, intensity, tierOf } from "@/lib/motion";
 import { Hand } from "lucide-react";
 import { MediaFrame } from "./ui";
 import { whenIntroDone } from "./Intro";
@@ -42,9 +42,13 @@ export function InteractiveHero({ eyebrow, title, highlight, body, tone = "blue"
     const el = root.current;
     if (!el) return;
     const mm = gsap.matchMedia();
-    mm.add({ desktop: MQ.desktop, tablet: MQ.tablet, mobile: MQ.mobile, reduce: MQ.reduce }, (ctx) => {
-      const t = ctx.conditions as Tier;
-      if (t.reduce) return;
+    mm.add({ desktop: MQ.desktop, tablet: MQ.tablet, mobile: MQ.mobile }, (ctx) => {
+      const t = tierOf(ctx.conditions);
+      if (t.reduce) {
+        const intro = heroIntro(el, true);
+        const off = whenIntroDone(() => intro.play());
+        return () => off();
+      }
       const intro = heroIntro(el);
       const off = whenIntroDone(() => intro.play());
       const stopMouse = t.mobile ? () => {} : heroMouseInteraction(el, intensity(t));

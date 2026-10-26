@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Play, Search } from "lucide-react";
 import { MediaFrame } from "./ui";
@@ -154,7 +155,7 @@ function Strip({ albums, direction = -1, categories }: { albums: Album[]; direct
   useEffect(() => {
     const el = strip.current, one = setRef.current;
     if (!el || !one || !moving) return;
-    const speed = matchMedia("(prefers-reduced-motion: reduce)").matches ? SPEED * 0.6 : SPEED;
+    const speed = isReduced() ? SPEED * 0.6 : SPEED;
     let raf = 0, last = performance.now();
     const frame = (now: number) => {
       const dt = Math.min(now - last, 100); // no jump after a background tab

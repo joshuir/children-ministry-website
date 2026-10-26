@@ -1,10 +1,11 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useId, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import { MessageCircle, Plus } from "lucide-react";
 import { gsap, useGSAP } from "@/lib/gsap";
-import { MQ } from "@/lib/motion";
+
 import { Button, Eyebrow } from "./ui";
 import type { Faq as FaqItem, SectionText } from "@/lib/types";
 
@@ -27,7 +28,7 @@ export function Faq({ items, text, contactHref = "/contact/", compact = false }:
 
   // Open/close choreography whenever the open item changes.
   useGSAP(() => {
-    const reduce = matchMedia(MQ.reduce).matches;
+    const reduce = isReduced();
     gsap.utils.toArray<HTMLElement>("[data-faq-panel]").forEach((panel) => {
       const isOpen = panel.dataset.faqPanel === open;
       const icon = root.current?.querySelector<HTMLElement>(`[data-faq-icon="${panel.dataset.faqPanel}"]`);
@@ -39,7 +40,7 @@ export function Faq({ items, text, contactHref = "/contact/", compact = false }:
 
   // When the topic changes, the visible questions re-stagger in.
   useGSAP(() => {
-    if (matchMedia(MQ.reduce).matches || topic === "all" && !root.current?.dataset.filtered) return;
+    if (isReduced() || topic === "all" && !root.current?.dataset.filtered) return;
     root.current!.dataset.filtered = "1";
     gsap.fromTo("[data-faq-item]", { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: "power3.out", stagger: 0.05, overwrite: true });
   }, { scope: root, dependencies: [topic] });

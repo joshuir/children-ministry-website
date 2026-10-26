@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useRef, type ReactNode } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 
@@ -7,7 +8,7 @@ import { gsap, useGSAP } from "@/lib/gsap";
 export default function Template({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   useGSAP(() => {
-    if (!ref.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!ref.current || isReduced()) return;
     gsap.fromTo(ref.current, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.55, ease: "power2.out", clearProps: "transform,opacity,visibility" });
   }, { scope: ref });
   return <div ref={ref} className="flex-1">{children}</div>;

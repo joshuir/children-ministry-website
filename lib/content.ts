@@ -5,6 +5,7 @@
  */
 import "server-only";
 import { getContent } from "@/lib/cms/data";
+import { cleanBank } from "@/lib/learn";
 import type { BibleLesson, Post } from "@/lib/types";
 
 export const getSite = async () => (await getContent()).site;
@@ -40,6 +41,9 @@ export const getSocialEmbeds = async () => [...(await getContent()).socialEmbeds
 
 /** Published FAQs, optionally limited to some categories. */
 export const getFaqs = async (cats?: string[]) => (await getContent()).faqs.filter((f) => !f.hidden && f.question.trim() && (!cats || !f.category || cats.includes(f.category)));
+
+/** Bible games: hidden, incomplete and duplicate questions are removed so children never see repeats. */
+export const getQuiz = async () => cleanBank((await getContent()).quiz);
 
 export const getGallery = async () => (await getContent()).gallery;
 export const getGalleryCategories = async () => (await getContent()).galleryCategories;

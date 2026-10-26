@@ -19,18 +19,28 @@
  *   data-card, data-card-media, data-card-arrow, data-card-group     card hover
  */
 import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { isReduced } from "@/lib/motion-pref";
 
 /* -------------------------------------------------------------- device tiers */
 
+/**
+ * Size tiers. Every width matches exactly one, so animations always run (large touch screens such as
+ * an iPad in landscape used to match none). Pointer effects check for a real mouse separately.
+ * Reduced motion is not a media query here: it comes from isReduced() (OS setting or the footer switch).
+ */
 export const MQ = {
-  desktop: "(min-width: 1024px) and (hover: hover) and (pointer: fine)",
+  desktop: "(min-width: 1024px)",
   tablet: "(min-width: 640px) and (max-width: 1023.98px)",
   mobile: "(max-width: 639.98px)",
-  reduce: "(prefers-reduced-motion: reduce)",
-  motion: "(prefers-reduced-motion: no-preference)",
+  finePointer: "(hover: hover) and (pointer: fine)",
 } as const;
 
 export type Tier = { desktop?: boolean; tablet?: boolean; mobile?: boolean; reduce?: boolean };
+
+/** Builds the tier for a gsap.matchMedia() callback, adding the site-wide reduced-motion decision. */
+export const tierOf = (conditions: gsap.Conditions | undefined): Tier => ({ ...(conditions as Tier), reduce: isReduced() });
+
+export const hasFinePointer = () => typeof matchMedia === "function" && matchMedia(MQ.finePointer).matches;
 
 /** 1 on desktop, softer on tablet, minimal on phones, 0 when the user prefers reduced motion. */
 export const intensity = (t: Tier) => (t.reduce ? 0 : t.desktop ? 1 : t.tablet ? 0.5 : 0.25);
@@ -40,8 +50,14 @@ const q = (root: Element, sel: string) => gsap.utils.toArray<HTMLElement>(root.q
 /* -------------------------------------------------------------- hero */
 
 /** Staged, cinematic entrance. Returns a paused timeline — call .play() when the page is ready. */
-export function heroIntro(root: HTMLElement) {
+export function heroIntro(root: HTMLElement, calm = false) {
   const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+  if (calm) {
+    // Reduced motion: everything simply fades in, in reading order. No movement or scaling.
+    const parts = q(root, '[data-hero="bg"], [data-hero="visual"], [data-hero="word"], [data-hero="body"], [data-hero="cta"], [data-hero="secondary"], [data-hero="deco"]');
+    if (parts.length) tl.fromTo(parts, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6, ease: "power1.out", stagger: 0.03 }, 0);
+    return tl;
+  }
   const bg = q(root, '[data-hero="bg"]'), visual = q(root, '[data-hero="visual"]'), words = q(root, '[data-hero="word"]');
   const body = q(root, '[data-hero="body"]'), cta = q(root, '[data-hero="cta"]'), secondary = q(root, '[data-hero="secondary"]'), deco = q(root, '[data-hero="deco"]');
 
@@ -61,7 +77,7 @@ export function heroIntro(root: HTMLElement) {
  * negative away from it). Movement is capped by the depth value so nothing ever leaves the screen.
  */
 export function heroMouseInteraction(root: HTMLElement, strength = 1) {
-  if (strength <= 0) return () => {};
+  if (strength <= 0 || !hasFinePointer()) return () => {};
   const layers = q(root, "[data-depth]").map((el) => ({
     d: Number(el.dataset.depth) || 0,
     x: gsap.quickTo(el, "x", { duration: 0.9, ease: "power3.out" }),
@@ -108,7 +124,7 @@ export function heroScroll(root: HTMLElement, strength = 1) {
   if (visual.length) tl.to(visual, { y: -50 * strength }, 0);
   if (media.length) tl.to(media, { scale: 1 + 0.08 * strength }, 0);
   // Background drift is desktop-only: scaling this big layer on phones made iOS Safari paint black blocks.
-  if (bg.length && strength >= 1 && matchMedia("(hover: hover) and (pointer: fine)").matches) tl.to(bg, { scale: 1 + 0.06 * strength, yPercent: 6 * strength }, 0);
+  if (bg.length && strength >= 1 && hasFinePointer()) tl.to(bg, { scale: 1 + 0.06 * strength, yPercent: 6 * strength }, 0);
   deco.forEach((d, i) => tl.to(d, { y: -(70 + i * 45) * strength }, 0));
   return tl;
 }
@@ -194,6 +210,14 @@ export function groupLeave(group: HTMLElement) {
 export function sectionReveal(scope: ParentNode = document, t: Tier = {}) {
   const els = gsap.utils.toArray<HTMLElement>(scope.querySelectorAll("[data-reveal]"));
   if (!els.length) return [];
+  if (t.reduce) {
+    // Calm variant: a soft fade as things come into view, no travel, nothing hides again.
+    gsap.set(els, { autoAlpha: 0 });
+    return ScrollTrigger.batch(els, {
+      start: "top 92%", interval: 0.1, batchMax: 8, once: true,
+      onEnter: (batch) => gsap.to(batch, { autoAlpha: 1, duration: 0.6, ease: "power1.out", stagger: 0.05, overwrite: "auto" }),
+    });
+  }
   const travel = t.mobile ? 24 : 40;
   const hidden = { autoAlpha: 0, y: travel, scale: 0.97 };
   gsap.set(els, hidden);

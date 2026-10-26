@@ -1,7 +1,8 @@
+import { isReduced } from "@/lib/motion-pref";
 import { gsap } from "@/lib/gsap";
 import type { PointerEvent as RPointerEvent } from "react";
 
-const reduced = () => typeof window !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+const reduced = () => typeof window !== "undefined" && isReduced();
 
 /**
  * Instagram-Live style reaction stream: emojis rise from a point on the screen,

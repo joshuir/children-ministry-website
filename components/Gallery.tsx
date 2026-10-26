@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import { gsap, useGSAP, Flip } from "@/lib/gsap";
@@ -60,7 +61,7 @@ export function Lightbox({ items, index, onClose, onNav, categories }: { items: 
   }, [onClose, onNav]);
 
   useGSAP(() => {
-    if (!stage.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!stage.current || isReduced()) return;
     gsap.fromTo(stage.current, { autoAlpha: 0, scale: 0.97 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "power2.out" });
   }, { scope: stage, dependencies: [index] });
 
@@ -115,7 +116,7 @@ export function Gallery({ items, categories, limit, showControls = true }: { ite
   }, [items, active, query, limit, catLabels]);
 
   const capture = () => {
-    if (grid.current && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) flipState.current = Flip.getState(grid.current.querySelectorAll("[data-flip]"));
+    if (grid.current && !isReduced()) flipState.current = Flip.getState(grid.current.querySelectorAll("[data-flip]"));
   };
 
   useGSAP(() => {

@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
@@ -33,7 +34,7 @@ export function Profile({ t, classes, onClose }: { t: Teacher; classes: ClassInf
   }, [onClose]);
 
   useGSAP(() => {
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (isReduced()) return;
     gsap.fromTo(ref.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2 });
     gsap.fromTo(panel.current, { y: 40, scale: 0.96, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 0.45, ease: "back.out(1.6)" });
     gsap.from("[data-stagger]", { y: 14, autoAlpha: 0, duration: 0.4, stagger: 0.05, delay: 0.12, ease: "power2.out" });
@@ -92,7 +93,7 @@ export function TeacherDirectory({ teachers, classes, groups }: { teachers: Teac
     setFilter(id);
   }
   useGSAP(() => {
-    if (!flipState.current || matchMedia("(prefers-reduced-motion: reduce)").matches) { flipState.current = null; return; }
+    if (!flipState.current || isReduced()) { flipState.current = null; return; }
     Flip.from(flipState.current, {
       duration: 0.5, ease: "power3.inOut", absolute: true, scale: true,
       onEnter: (els) => gsap.fromTo(els, { autoAlpha: 0, scale: 0.85 }, { autoAlpha: 1, scale: 1, duration: 0.4 }),

@@ -4,9 +4,10 @@ import { groups, classes, lessons } from "@/content/classes";
 import { events, gallery, galleryCategories, posts } from "@/content/community";
 import { pages, typography } from "@/content/pages";
 import { faqs } from "@/content/faqs";
+import { quiz } from "@/content/learn";
 import type {
   AboutContent, BibleLesson, ClassInfo, EventItem, GalleryCategory, GalleryItem, GroupInfo,
-  Faq, HomeContent, PagesContent, Post, SiteSettings, SocialEmbed, Teacher, Typography,
+  Faq, HomeContent, PagesContent, Post, QuizQuestion, SiteSettings, SocialEmbed, Teacher, Typography,
 } from "@/lib/types";
 
 /** Everything editable in the CMS lives in one versioned JSON document. */
@@ -27,6 +28,8 @@ export interface CmsContent {
   posts: Post[];
   socialEmbeds: SocialEmbed[];
   faqs: Faq[];
+  /** Bible learning games question bank. */
+  quiz: QuizQuestion[];
   pages: PagesContent;
   typography: Typography;
 }
@@ -49,6 +52,7 @@ export function seedContent(): CmsContent {
     gallery,
     posts: posts.map((p) => ({ ...p, status: "published" as const })),
     faqs,
+    quiz,
     pages,
     typography,
     socialEmbeds: [
@@ -83,7 +87,7 @@ export function normalize(raw: Partial<CmsContent> | null | undefined): CmsConte
 /** Light structural check so a bad import can't break the public site. */
 export function validate(c: any): string | null {
   if (!c || typeof c !== "object") return "Content must be an object.";
-  const arrays = ["teachers", "groups", "classes", "lessons", "events", "galleryCategories", "gallery", "posts", "socialEmbeds", "faqs"];
+  const arrays = ["teachers", "groups", "classes", "lessons", "events", "galleryCategories", "gallery", "posts", "socialEmbeds", "faqs", "quiz"];
   for (const k of arrays) if (c[k] !== undefined && !Array.isArray(c[k])) return `“${k}” must be a list.`;
   for (const k of ["site", "home", "about", "pages", "typography"]) if (c[k] !== undefined && (typeof c[k] !== "object" || Array.isArray(c[k]))) return `“${k}” must be an object.`;
   const size = JSON.stringify(c).length;

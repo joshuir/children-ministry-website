@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { dayMonth } from "@/lib/format";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
@@ -53,7 +54,7 @@ export function BlogPost({ post, author }: { post: FeedPost; author?: Teacher })
 
   // New posts arriving live slide in and glow briefly.
   useGSAP(() => {
-    if (!post.isNew || !card.current || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!post.isNew || !card.current || isReduced()) return;
     const tl = gsap.timeline();
     tl.from(card.current, { y: -24, scale: 0.97, autoAlpha: 0, duration: 0.6, ease: "back.out(1.6)" })
       .fromTo(card.current, { boxShadow: "0 0 0 4px rgba(255,197,61,.9)" }, { boxShadow: "0 0 0 0px rgba(255,197,61,0)", duration: 1.6, ease: "power2.out", clearProps: "boxShadow" });
@@ -136,7 +137,7 @@ export function BlogPost({ post, author }: { post: FeedPost; author?: Teacher })
                 <span className="absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 shadow-lift transition-transform group-hover:scale-110"><Play className="ml-1 h-8 w-8 fill-ink text-ink" /></span>
               ) : (
                 <span className="absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-2xl bg-ink/80 px-4 py-3 text-left text-sm font-semibold text-white backdrop-blur">
-                  <span className="flex h-5 items-end gap-0.5" aria-hidden>{[0, 1, 2, 3].map((i) => <span key={i} className="w-1 rounded-full bg-sun-400 motion-safe:animate-[eq_.9s_ease-in-out_infinite]" style={{ height: `${40 + i * 15}%`, animationDelay: `${i * 0.12}s` }} />)}</span>
+                  <span className="flex h-5 items-end gap-0.5" aria-hidden>{[0, 1, 2, 3].map((i) => <span key={i} className="w-1 rounded-full bg-sun-400 lively:animate-[eq_.9s_ease-in-out_infinite]" style={{ height: `${40 + i * 15}%`, animationDelay: `${i * 0.12}s` }} />)}</span>
                   Preview — the video plays here once it&apos;s uploaded in the admin dashboard.
                 </span>
               )}

@@ -10,6 +10,7 @@ import { Motion } from "@/components/Motion";
 import { Cursor } from "@/components/Cursor";
 import { getClasses, getGroups, getPages, getSite, getTypography } from "@/lib/content";
 import { fontHref, typographyCss } from "@/lib/typography";
+import { motionBootScript } from "@/lib/motion-pref";
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSite();
@@ -31,8 +32,9 @@ export const viewport: Viewport = { themeColor: "#2563EB", width: "device-width"
 //    the comment but not the newline text node, so hydration failed (error #418) and React rebuilt the
 //    whole document — reverting every GSAP animation and wiping <html> classes. Strip both before React
 //    hydrates (React never renders text or comments directly inside <html>/<head>).
-// 2. Hides reveal targets until GSAP is ready; always reveals within 2.5s even if scripts fail.
-const motionBoot = `(function(){try{[document.documentElement,document.head].forEach(function(n){for(var c=n.firstChild;c;){var x=c.nextSibling;if(c.nodeType===8||(c.nodeType===3&&!/\\S/.test(c.data)))n.removeChild(c);c=x}})}catch(e){}})();(function(){try{var d=document.documentElement;if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){d.classList.add('motion-pending');setTimeout(function(){if(!window.__motionReady)d.classList.remove('motion-pending')},2500)}}catch(e){}})();`;
+// 2. Decides full vs calm motion before paint (see lib/motion-pref.ts) and hides reveal targets until
+//    GSAP is ready; they always appear within 2.5s even if scripts fail.
+const motionBoot = `(function(){try{[document.documentElement,document.head].forEach(function(n){for(var c=n.firstChild;c;){var x=c.nextSibling;if(c.nodeType===8||(c.nodeType===3&&!/\\S/.test(c.data)))n.removeChild(c);c=x}})}catch(e){}})();` + motionBootScript;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [site, groups, pages, type, classes] = await Promise.all([getSite(), getGroups(), getPages(), getTypography(), getClasses()]);
@@ -66,8 +68,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Suspense fallback={null}><Footer site={site} groups={groups} visit={pages.sections["footer.visit"]} /></Suspense>
         <Motion />
         <Cursor />
-        {/* Diagnostic: marks server-rendered regions so a client re-render can be detected. Runs from SSR HTML only. */}
-        <script dangerouslySetInnerHTML={{ __html: `document.querySelectorAll("header,main,footer,main section").forEach(function(n,i){n.__srv=i})` }} />
       </body>
     </html>
   );

@@ -1,3 +1,4 @@
+import plugin from "tailwindcss/plugin";
 import type { Config } from "tailwindcss";
 
 // Design tokens: blue / black / white foundation with warm accents.
@@ -33,6 +34,12 @@ const config: Config = {
       animation: { float: "float 7s ease-in-out infinite" },
     },
   },
-  plugins: [],
+  plugins: [
+    // Variants tied to the site-wide motion decision (see lib/motion-pref.ts), not just the OS setting.
+    plugin(({ addVariant }) => {
+      addVariant("calm", 'html[data-motion="reduced"] &');
+      addVariant("lively", 'html[data-motion="full"] &');
+    }),
+  ],
 };
 export default config;

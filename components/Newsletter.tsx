@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useRef, useState, type FormEvent, useEffect } from "react";
 import clsx from "clsx";
 import { gsap, useGSAP } from "@/lib/gsap";
@@ -12,7 +13,7 @@ type Field = "name" | "email";
 
 /** A paper plane launches from the button and loops off the screen. */
 function flyPlane(from: HTMLElement | null) {
-  if (!from || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (!from || isReduced()) return;
   const r = from.getBoundingClientRect();
   const p = document.createElement("div");
   p.setAttribute("aria-hidden", "true");
@@ -42,7 +43,7 @@ export function Newsletter({ variant = "card", thanks, button = "Subscribe" }: {
     if (status !== "done" || !doneRef.current) return;
     const el = doneRef.current;
     celebrate(el);
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (isReduced()) return;
     const q = gsap.utils.selector(el);
     gsap.timeline({ delay: 0.15 })
       .from(q("[data-env]"), { y: 40, scale: 0.4, rotate: -20, duration: 0.6, ease: "back.out(2.2)" })

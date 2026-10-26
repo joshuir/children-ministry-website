@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { StaffPanel } from "./StaffPanel";
 
 import { resolveMap } from "@/lib/map";
@@ -48,7 +49,7 @@ function CollectionEditor({ sec, content, setContent }: { sec: Collection; conte
   const { toast, storage } = useCms();
 
   useEffect(() => { setSel(null); setQ(""); setFilter(""); }, [sec.id]);
-  useEffect(() => { if (sel !== null && formRef.current && !matchMedia("(prefers-reduced-motion: reduce)").matches) gsap.fromTo(formRef.current, { autoAlpha: 0, x: 16 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: "power2.out" }); }, [sel]);
+  useEffect(() => { if (sel !== null && formRef.current && !isReduced()) gsap.fromTo(formRef.current, { autoAlpha: 0, x: 16 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: "power2.out" }); }, [sel]);
 
   const setList = (next: any[]) => setContent((c) => ({ ...c, [sec.path]: next }));
   const rows = list
@@ -307,7 +308,7 @@ export function Cms({ user }: { user: { username: string; name: string; role: "o
       const now = { ...content, updatedAt: j.updatedAt };
       setContentRaw(now); setSaved(JSON.stringify(now));
       toast("Saved — the live site is updating now.");
-      if (saveBtn.current && !matchMedia("(prefers-reduced-motion: reduce)").matches) gsap.fromTo(saveBtn.current, { scale: 0.9 }, { scale: 1, duration: 0.6, ease: "elastic.out(1.2,0.4)" });
+      if (saveBtn.current && !isReduced()) gsap.fromTo(saveBtn.current, { scale: 0.9 }, { scale: 1, duration: 0.6, ease: "elastic.out(1.2,0.4)" });
     } catch (e: any) {
       toast(e.message || "Save failed", "err");
     } finally {

@@ -1,5 +1,6 @@
 "use client";
 
+import { isReduced } from "@/lib/motion-pref";
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import { Check, ChevronDown, Copy, RefreshCw } from "lucide-react";
@@ -33,7 +34,7 @@ export function CalendarSync({ name, compact }: { name: string; compact?: boolea
   }, [open]);
 
   useGSAP(() => {
-    if (!open || !menu.current || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!open || !menu.current || isReduced()) return;
     gsap.fromTo(menu.current, { autoAlpha: 0, y: -6, scale: 0.97 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.25, ease: "power3.out" });
     gsap.fromTo(menu.current.querySelectorAll("[data-sync-item]"), { autoAlpha: 0, x: -6 }, { autoAlpha: 1, x: 0, duration: 0.25, stagger: 0.04, ease: "power2.out" });
   }, { dependencies: [open] });
