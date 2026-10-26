@@ -1,3 +1,4 @@
+import { useId } from "react";
 import type { SceneKey, Tone } from "@/lib/types";
 
 /**
@@ -235,7 +236,8 @@ function Motif({ scene, p }: { scene: SceneKey; p: (typeof palette)[Tone] }) {
 
 export function Scene({ scene = "sunrise", tone = "blue", className, title }: { scene?: SceneKey; tone?: Tone; className?: string; title?: string }) {
   const p = palette[tone];
-  const id = `${scene}-${tone}`;
+  // Unique per instance: shared ids made Safari resolve url(#…) to a copy inside a hidden menu and paint it black.
+  const id = `${scene}-${tone}-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
     <svg viewBox="0 0 400 280" preserveAspectRatio="xMidYMid slice" className={className} role={title ? "img" : undefined} aria-label={title} aria-hidden={title ? undefined : true}>
       <defs>
@@ -243,12 +245,8 @@ export function Scene({ scene = "sunrise", tone = "blue", className, title }: { 
           <stop offset="0" stopColor={p.bg} />
           <stop offset="1" stopColor={p.bg2} />
         </linearGradient>
-        <pattern id={`dots-${id}`} width="18" height="18" patternUnits="userSpaceOnUse">
-          <circle cx="2" cy="2" r="1.4" fill={tone === "ink" ? "#fff" : p.ink} opacity={0.08} />
-        </pattern>
       </defs>
       <rect width="400" height="280" fill={`url(#bg-${id})`} />
-      <rect width="400" height="280" fill={`url(#dots-${id})`} />
       <circle cx="40" cy="250" r="90" fill={p.blob} opacity={0.18} />
       <circle cx="380" cy="30" r="70" fill={p.blob} opacity={0.14} />
       <path d="M0 236 q100 -26 200 -6 t200 -4 v60 h-400z" fill={tone === "ink" ? "#0E2463" : "#fff"} opacity={tone === "ink" ? 1 : 0.55} />

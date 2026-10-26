@@ -26,8 +26,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const viewport: Viewport = { themeColor: "#2563EB", width: "device-width", initialScale: 1 };
 
-// Hides reveal targets until GSAP is ready; always reveals within 2.5s even if scripts fail.
-const motionBoot = `(function(){try{var d=document.documentElement;if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){d.classList.add('motion-pending');setTimeout(function(){if(!window.__motionReady)d.classList.remove('motion-pending')},2500)}}catch(e){}})();`;
+// 1. Netlify injects an HTML comment into <head>. React can't hydrate around unexpected head nodes
+//    (error #418), so it threw away the server HTML and rebuilt the page — breaking the hero's GSAP
+//    timelines and wiping <html> classes. Remove stray comments before React hydrates.
+// 2. Hides reveal targets until GSAP is ready; always reveals within 2.5s even if scripts fail.
+const motionBoot = `(function(){try{[document.documentElement,document.head].forEach(function(n){for(var c=n.firstChild;c;){var x=c.nextSibling;if(c.nodeType===8)n.removeChild(c);c=x}})}catch(e){}})();(function(){try{var d=document.documentElement;if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){d.classList.add('motion-pending');setTimeout(function(){if(!window.__motionReady)d.classList.remove('motion-pending')},2500)}}catch(e){}})();`;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [site, groups, pages, type, classes] = await Promise.all([getSite(), getGroups(), getPages(), getTypography(), getClasses()]);

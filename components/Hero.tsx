@@ -61,7 +61,8 @@ export function Hero({ hero, site, lesson }: { hero: HomeContent["hero"]; site: 
         <div data-depth="-14" className="absolute inset-0">
           <div className="absolute inset-0 opacity-[0.5]" style={{ backgroundImage: "radial-gradient(circle at 2px 2px, #B9CEFF 1.6px, transparent 2.1px)", backgroundSize: "28px 28px" }} />
         </div>
-        <div data-depth="-26" className="absolute -right-32 top-10 h-[480px] w-[480px] rounded-full bg-brand-100 blur-2xl" />
+        {/* radial gradient, not CSS blur: a big blurred layer under a transform is painted black by iOS Safari */}
+        <div data-depth="-26" className="absolute -right-32 top-10 h-[480px] w-[480px] rounded-full" style={{ background: "radial-gradient(circle, #DCE7FF 0%, rgba(220,231,255,0.6) 40%, transparent 70%)" }} />
       </div>
       {/* decorative shapes — each on its own depth and scroll speed */}
       <div aria-hidden data-depth="-34" className="pointer-events-none absolute left-[4%] top-[18%] hidden md:block">

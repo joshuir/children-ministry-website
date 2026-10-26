@@ -97,7 +97,7 @@ export default async function HomePage() {
       {/* 5. Featured Bible lesson */}
       {lesson && (
         <section className="relative overflow-hidden bg-ink py-20 text-white md:py-28" aria-labelledby="lesson-title">
-          <div aria-hidden className="absolute -left-40 top-10 h-[420px] w-[420px] rounded-full bg-brand-500/25 blur-3xl" />
+          <div aria-hidden className="absolute -left-40 top-10 h-[420px] w-[420px] rounded-full" style={{ background: "radial-gradient(circle, rgba(37,99,235,.35) 0%, transparent 68%)" }} />
           <div className="container relative grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
             <div>
               <p data-reveal className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-[13px] font-bold uppercase tracking-[0.08em] text-sun-300"><BookOpen className="h-4 w-4" />{sec("home.lesson").eyebrow || "Featured Bible lesson"} · {fmtDate(lesson.date, { day: "numeric", month: "long" })}</p>

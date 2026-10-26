@@ -23,7 +23,7 @@ export function Footer({ site, groups, visit }: { site: SiteSettings; groups: Gr
   return (
     <footer className="relative mt-auto overflow-hidden bg-ink text-white">
       <svg aria-hidden className="absolute -top-px left-0 w-full text-paper" viewBox="0 0 1440 40" preserveAspectRatio="none"><path d="M0 0h1440v8c-240 30-480 30-720 12S240-4 0 20z" fill="currentColor" /></svg>
-      <div aria-hidden className="pointer-events-none absolute -right-40 top-10 h-[420px] w-[420px] rounded-full bg-brand-500/20 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -right-40 top-10 h-[420px] w-[420px] rounded-full" style={{ background: "radial-gradient(circle, rgba(37,99,235,.28) 0%, transparent 68%)" }} />
 
       <div className="container relative pb-8 pt-24 md:pt-28">
         {/* 1. Invitation */}
