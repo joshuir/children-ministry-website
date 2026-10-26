@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 const esc = (s: string) => (s || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 const fold = (line: string) => line.match(/.{1,73}/g)!.join("\r\n ");
 
-/** iCalendar feed of all events (subscribe in Google/Apple Calendar), or one event with ?id= */
+/** iCalendar feed of all events (subscribe from any calendar app), or one event with ?id= */
 export async function GET(req: Request) {
   const id = new URL(req.url).searchParams.get("id");
   const [events, site] = await Promise.all([getEvents(), getSite()]);

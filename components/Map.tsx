@@ -1,3 +1,4 @@
+import { ConsentGate } from "./ConsentGate";
 import { Navigation } from "lucide-react";
 import { buttonClass } from "./ui";
 import { resolveMap } from "@/lib/map";
@@ -22,14 +23,16 @@ export function Map({ query, label, embed, title, zoom }: { query: string; label
         <rect x="560" y="40" width="160" height="90" rx="18" fill="#E3F1FF" /><rect x="60" y="340" width="200" height="90" rx="18" fill="#E3F1FF" />
         <g transform="translate(400 200)"><circle r="40" fill="#2563EB" opacity=".15" /><path d="M0 -38 c-16 0 -28 12 -28 27 c0 20 28 45 28 45 s28 -25 28 -45 c0 -15 -12 -27 -28 -27z" fill="#2563EB" /><circle cy="-12" r="10" fill="#fff" /></g>
       </svg>
-      <iframe
-        title={`Map showing ${label}`}
-        src={src}
-        className="relative block h-[380px] w-full border-0 md:h-[460px]"
-        loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-        allowFullScreen
-      />
+      <ConsentGate label="map" href={`https://www.google.com/maps/search/?api=1&query=${q}`} className="relative h-[380px] w-full !rounded-none !bg-transparent !ring-0 pb-36 md:h-[460px]">
+        <iframe
+          title={`Map showing ${label}`}
+          src={src}
+          className="relative block h-[380px] w-full border-0 md:h-[460px]"
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          allowFullScreen
+        />
+      </ConsentGate>
       <div className="absolute inset-x-4 bottom-4 flex flex-col gap-3 rounded-3xl bg-white/95 p-4 shadow-lift backdrop-blur sm:flex-row sm:items-center sm:justify-between">
         <div>
           {title && <p className="text-xs font-extrabold uppercase tracking-[0.1em] text-brand-600">{title}</p>}

@@ -6,6 +6,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Motion } from "@/components/Motion";
+import { CookieConsent } from "@/components/CookieConsent";
 import { Cursor } from "@/components/Cursor";
 import { getClasses, getGroups, getMotion, getPages, getSite, getTypography } from "@/lib/content";
 import { fontHref, typographyCss } from "@/lib/typography";
@@ -67,6 +68,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <main id="main" className="flex flex-1 flex-col">{children}</main>
         <Footer site={site} groups={groups} visit={pages.sections["footer.visit"]} />
         <Motion />
+        <CookieConsent />
         <Cursor />
       </body>
     </html>

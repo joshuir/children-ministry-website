@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import clsx from "clsx";
-import { Gamepad2, ArrowUpRight, CalendarDays, GraduationCap, House, Images, Info, Menu, MessageCircle, Newspaper, X, type LucideIcon } from "lucide-react";
+import { Gamepad2, CalendarHeart, ArrowUpRight, CalendarDays, GraduationCap, House, Images, Info, Menu, MessageCircle, Newspaper, X, type LucideIcon } from "lucide-react";
 import { Logo, buttonClass } from "./ui";
 import { Scene } from "./Scene";
 import type { ClassInfo, GroupInfo, SiteSettings } from "@/lib/types";
@@ -118,7 +118,13 @@ export function Navbar({ site, groups, classes }: { site: SiteSettings; groups: 
         </ul>
 
         <div className="flex items-center gap-2">
-          <Link href={site.cta.href} className={clsx(buttonClass("primary", "sm"), "hidden sm:inline-flex")}>{site.cta.label}</Link>
+          {/* Join CTA: one line at every width. Full label on wide screens, "Join us" where space is tight. */}
+          <Link href={site.cta.href} aria-label={site.cta.label} data-cta
+            className={clsx(buttonClass("primary", "sm"), "whitespace-nowrap !px-4 shadow-[0_4px_14px_-4px_rgba(37,99,235,.55)] sm:!px-5")}>
+            <CalendarHeart aria-hidden className="hidden h-4 w-4 sm:block" />
+            <span className="btn-label xl:hidden">Join us</span>
+            <span className="btn-label hidden xl:inline">{site.cta.label}</span>
+          </Link>
           <button
             type="button"
             className="flex h-11 w-11 items-center justify-center rounded-full bg-ink text-white lg:hidden"
@@ -218,8 +224,8 @@ export function Navbar({ site, groups, classes }: { site: SiteSettings; groups: 
             </li>
           ))}
         </ul>
-        <Link href={site.cta.href} className={clsx(buttonClass("primary", "lg"), "mt-4 w-full")}>{site.cta.label}</Link>
-        <p className="mt-4 px-2 text-center text-sm text-ink-mute">{site.serviceTimes[0].label} · {site.serviceTimes[0].time}</p>
+        <Link href={site.cta.href} className={clsx(buttonClass("primary", "lg"), "mt-4 w-full")}><CalendarHeart aria-hidden className="h-5 w-5" /><span className="btn-label">{site.cta.label}</span></Link>
+        <p className="mt-3 px-2 text-center text-sm font-semibold text-ink-mute">{site.serviceTimes[0].label} · {site.serviceTimes[0].time}</p>
       </div>
     </header>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { saveConsent, useConsent } from "@/lib/consent";
 import { useState } from "react";
 import clsx from "clsx";
 import { ExternalLink, Play } from "lucide-react";
@@ -42,17 +43,19 @@ function guessIcon(e: SocialEmbed) {
 function EmbedCard({ e }: { e: SocialEmbed }) {
   const src = embedUrl(e);
   const [load, setLoad] = useState(false);
+  const consent = useConsent();
   const tall = e.platform === "instagram" || e.platform === "tiktok" || e.platform === "facebook";
   return (
     <article className="tilt-card group flex flex-col overflow-hidden rounded-4xl bg-white shadow-card ring-1 ring-ink/5">
       {src ? (
         <div className={clsx("relative w-full bg-ink", tall ? "aspect-[4/5]" : "aspect-video")}>
-          {load ? (
+          {load && consent?.media ? (
             <iframe src={src} title={e.caption} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" allowFullScreen className="absolute inset-0 h-full w-full border-0 bg-white" />
           ) : (
-            <button type="button" onClick={() => setLoad(true)} className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-brand-600 to-ink text-white" aria-label={`Load ${platformName[e.platform]} post: ${e.caption}`}>
+            <button type="button" onClick={() => { if (!consent?.media) saveConsent({ media: true }); setLoad(true); }} className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-brand-600 to-ink text-white" aria-label={`Load ${platformName[e.platform]} post: ${e.caption}`}>
               <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-ink shadow-lift transition-transform duration-200 group-hover:scale-110"><Play className="ml-1 h-7 w-7 fill-current" /></span>
               <span className="text-sm font-bold">Tap to load from {platformName[e.platform]}</span>
+              {!consent?.media && <span className="max-w-[16rem] px-4 text-center text-xs text-white/75">Loading allows {platformName[e.platform]} cookies (you can change this in Cookie settings).</span>}
             </button>
           )}
         </div>

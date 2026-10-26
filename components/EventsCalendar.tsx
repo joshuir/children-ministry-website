@@ -5,8 +5,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import { gsap, useGSAP } from "@/lib/gsap";
-import { ArrowRight, CalendarDays, CalendarPlus, ChevronLeft, ChevronRight, Clock, Download, LayoutGrid, List, MapPin } from "lucide-react";
-import { EVENT_CATEGORIES, categoryLabel, googleCalendarUrl } from "@/lib/calendar";
+import { ArrowRight, CalendarDays, CalendarPlus, ChevronLeft, ChevronRight, Clock, LayoutGrid, List, MapPin } from "lucide-react";
+import { EVENT_CATEGORIES, categoryLabel } from "@/lib/calendar";
 import { CalendarSync } from "./CalendarSync";
 import { dayLabel, dayMonth, fmtDate } from "@/lib/format";
 import type { EventItem, Tone } from "@/lib/types";
@@ -46,11 +46,9 @@ export function EventDetail({ e, address, compact }: { e: EventItem; address: st
           </p>
           {!compact && <p className="mt-3 leading-relaxed text-ink-mute">{e.summary}</p>}
           <div className="mt-4 flex flex-wrap gap-2">
-            <a href={googleCalendarUrl(e, address)} target="_blank" rel="noopener noreferrer" className="btn inline-flex min-h-[40px] items-center gap-2 rounded-full bg-ink px-4 text-sm font-bold text-white transition-colors duration-100 hover:bg-brand-500">
-              <CalendarPlus className="h-4 w-4" />Google Calendar
-            </a>
-            <a href={`/api/calendar?id=${encodeURIComponent(e.id)}`} className="btn inline-flex min-h-[40px] items-center gap-2 rounded-full bg-paper px-4 text-sm font-bold text-ink ring-1 ring-ink/10 transition-colors duration-100 hover:bg-brand-50">
-              <Download className="h-4 w-4" />Apple / Outlook
+            {/* One universal calendar file: opens in whichever calendar app the visitor uses. */}
+            <a href={`/api/calendar?id=${encodeURIComponent(e.id)}`} className="btn inline-flex min-h-[40px] items-center gap-2 rounded-full bg-ink px-4 text-sm font-bold text-white transition-colors duration-100 hover:bg-brand-500">
+              <CalendarPlus className="h-4 w-4" />Add to calendar
             </a>
             {e.rsvpUrl && (
               <a href={e.rsvpUrl} target="_blank" rel="noopener noreferrer" className="btn inline-flex min-h-[40px] items-center gap-2 rounded-full bg-sun-400 px-4 text-sm font-bold text-ink">RSVP <ArrowRight className="h-4 w-4" /></a>

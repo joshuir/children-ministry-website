@@ -1,3 +1,4 @@
+import { CookieSettingsLink } from "./CookieSettingsLink";
 import Link from "next/link";
 import { ArrowRight, Clock, LockKeyhole, Mail, MapPin, MessageCircle, Phone, ShieldCheck } from "lucide-react";
 import { Logo, buttonClass } from "./ui";
@@ -89,7 +90,7 @@ export function Footer({ site, groups, visit }: { site: SiteSettings; groups: Gr
 
         <div className="mt-6 flex flex-col gap-4 border-t border-white/10 pt-6 text-sm md:flex-row md:items-center md:justify-between">
           <p className="text-white/50">© {new Date().getFullYear()} {site.name} · {site.church}</p>
-          <ul className="flex flex-wrap gap-x-5 gap-y-1">{legal.map((l) => <li key={l.href}><Link href={l.href} className="link-draw inline-flex min-h-[36px] items-center text-white/60 hover:text-white">{l.label}</Link></li>)}</ul>
+          <ul className="flex flex-wrap gap-x-5 gap-y-1">{legal.map((l) => <li key={l.href}><Link href={l.href} className="link-draw inline-flex min-h-[36px] items-center text-white/60 hover:text-white">{l.label}</Link></li>)}<li><CookieSettingsLink /></li></ul>
           <Link href="/admin" prefetch={false} rel="nofollow" className="group inline-flex min-h-[36px] items-center gap-2 self-start rounded-full px-3 text-white/45 ring-1 ring-white/10 transition-colors duration-150 hover:bg-white/5 hover:text-white hover:ring-white/30 md:self-auto">
             <LockKeyhole className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-rotate-12" aria-hidden />Staff login
           </Link>

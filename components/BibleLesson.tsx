@@ -1,3 +1,4 @@
+import { ConsentGate } from "./ConsentGate";
 import clsx from "clsx";
 import { BookMarked, Download, FileText, HandHeart, Headphones, Image as ImageIcon, Lightbulb, MessageCircleQuestion, Puzzle, Target, Video } from "lucide-react";
 import { fmtDate } from "@/lib/format";
@@ -26,7 +27,9 @@ export function LessonMedia({ media, className }: { media: NonNullable<Lesson["m
       {!media.src ? (
         <div className="relative aspect-[16/7] w-full"><Scene scene={media.scene || "bible"} tone={media.tone || "blue"} title={media.alt} className="h-full w-full" /></div>
       ) : yt ? (
-        <iframe src={`https://www.youtube-nocookie.com/embed/${yt[1]}`} title={media.alt || "Lesson video"} className="aspect-video w-full" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowFullScreen loading="lazy" />
+        <ConsentGate label="video" href={`https://www.youtube.com/watch?v=${yt[1]}`} className="aspect-video w-full !rounded-none">
+          <iframe src={`https://www.youtube-nocookie.com/embed/${yt[1]}`} title={media.alt || "Lesson video"} className="aspect-video w-full" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowFullScreen loading="lazy" />
+        </ConsentGate>
       ) : video ? (
         <video src={media.src} controls playsInline preload="metadata" className="aspect-video w-full bg-ink object-contain" aria-label={media.alt} />
       ) : (
