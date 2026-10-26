@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Suspense, type ReactNode } from "react";
 import clsx from "clsx";
 import { ArrowRight, ArrowUpRight, BookOpen, Check } from "lucide-react";
 import { Hero } from "@/components/Hero";
@@ -18,9 +17,6 @@ import { Faq } from "@/components/Faq";
 import { fmtDate } from "@/lib/format";
 import { LessonMedia } from "@/components/BibleLesson";
 
-/** Each homepage section hydrates independently, so one mismatch can never take down the whole page. */
-const Isolated = ({ children }: { children: ReactNode }) => <Suspense fallback={null}>{children}</Suspense>;
-
 export default async function HomePage() {
   const [site, home, groups, classes, events, posts, teachers, gallery, cats, sec, pages, faqs] = await Promise.all([
     getSite(), getHome(), getGroups(), getClasses(), getEvents(), getPosts(), getTeachers(), getGallery(), getGalleryCategories(), getSections(), getPages(), getFaqs(),
@@ -33,15 +29,15 @@ export default async function HomePage() {
 
   return (
     <>
-      <Isolated><Hero hero={home.hero} site={site} lesson={lesson && { title: lesson.title, reference: lesson.reference, verse: lesson.memoryVerse.text }} /></Isolated>
+      <Hero hero={home.hero} site={site} lesson={lesson && { title: lesson.title, reference: lesson.reference, verse: lesson.memoryVerse.text }} />
 
       {/* 1. Welcome */}
-      <Isolated><section className="py-20 md:py-28" aria-labelledby="welcome-title">
+      <section className="py-20 md:py-28" aria-labelledby="welcome-title">
         <WelcomeStats welcome={home.welcome} stats={home.stats} />
-      </section></Isolated>
+      </section>
 
       {/* 2. About the children's service */}
-      <Isolated><section className="bg-white py-20 md:py-28" aria-labelledby="about-title">
+      <section className="bg-white py-20 md:py-28" aria-labelledby="about-title">
         <div className="container grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
           <div data-reveal="image" className="relative order-2 aspect-[4/3.4] overflow-hidden rounded-5xl lg:order-1">
             <MediaFrame media={home.about.image} />
@@ -59,10 +55,10 @@ export default async function HomePage() {
             <div data-reveal className="mt-8"><Button href="/about/" variant="dark">More about us <ArrowRight className="h-4 w-4" /></Button></div>
           </div>
         </div>
-      </section></Isolated>
+      </section>
 
       {/* 3. Class categories */}
-      <Isolated><section className="py-20 md:py-28" aria-labelledby="classes-title">
+      <section className="py-20 md:py-28" aria-labelledby="classes-title">
         <div className="container">
           <SectionHeader id="classes-title" eyebrow={sec("home.classes").eyebrow} title={sec("home.classes").title} body={sec("home.classes").body} action={<Button href="/classes/" variant="light">All classes <ArrowRight className="h-4 w-4" /></Button>} />
           <div data-card-group className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -88,19 +84,19 @@ export default async function HomePage() {
             })}
           </div>
         </div>
-      </section></Isolated>
+      </section>
 
       {/* 4. Upcoming events */}
-      <Isolated><section className="bg-white py-20 md:py-28" aria-labelledby="events-title">
+      <section className="bg-white py-20 md:py-28" aria-labelledby="events-title">
         <div className="container">
           <SectionHeader id="events-title" eyebrow={sec("home.events").eyebrow} tone="coral" title={sec("home.events").title} body={sec("home.events").body} action={<Button href="/events/" variant="light">Events calendar <ArrowRight className="h-4 w-4" /></Button>} />
           <EventsCalendar events={events} address={site.contact.address.join(", ")} mode="mini" initialMonth={new Date().toISOString().slice(0, 7)} calendarName={site.shortName} />
         </div>
-      </section></Isolated>
+      </section>
 
       {/* 5. Featured Bible lesson */}
       {lesson && (
-        <Isolated><section className="relative overflow-hidden bg-ink py-20 text-white md:py-28" aria-labelledby="lesson-title">
+        <section className="relative overflow-hidden bg-ink py-20 text-white md:py-28" aria-labelledby="lesson-title">
           <div aria-hidden className="absolute -left-40 top-10 h-[420px] w-[420px] rounded-full" style={{ background: "radial-gradient(circle, rgba(37,99,235,.35) 0%, transparent 68%)" }} />
           <div className="container relative grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
             <div>
@@ -125,19 +121,19 @@ export default async function HomePage() {
             </figure>
             </div>
           </div>
-        </section></Isolated>
+        </section>
       )}
 
       {/* 6. Latest posts */}
-      <Isolated><section className="py-20 md:py-28" aria-labelledby="posts-title">
+      <section className="py-20 md:py-28" aria-labelledby="posts-title">
         <div className="container">
           <SectionHeader id="posts-title" eyebrow={sec("home.posts").eyebrow} title={sec("home.posts").title} body={sec("home.posts").body} action={<Button href="/blog/" variant="light">Open the feed <ArrowRight className="h-4 w-4" /></Button>} />
           <div data-card-group className="grid gap-5 md:grid-cols-3">{posts.slice(0, 3).map((p) => <PostPreview key={p.id} post={p} author={byId[p.authorId]} />)}</div>
         </div>
-      </section></Isolated>
+      </section>
 
       {/* 7. Gallery preview */}
-      <Isolated><section className="bg-white py-20 md:py-28" aria-labelledby="gallery-title">
+      <section className="bg-white py-20 md:py-28" aria-labelledby="gallery-title">
         <div className="container">
           <SectionHeader id="gallery-title" eyebrow={sec("home.gallery").eyebrow} tone="mint" title={sec("home.gallery").title} body={sec("home.gallery").body} action={<Button href="/gallery/" variant="light">View gallery <ArrowRight className="h-4 w-4" /></Button>} />
           <div data-card-group className="grid auto-rows-[180px] grid-cols-2 gap-4 md:auto-rows-[220px] md:grid-cols-4">
@@ -152,38 +148,38 @@ export default async function HomePage() {
             ))}
           </div>
         </div>
-      </section></Isolated>
+      </section>
 
       {/* 8. Teachers preview */}
-      <Isolated><section className="bg-white py-20 md:py-28" aria-labelledby="teachers-title">
+      <section className="bg-white py-20 md:py-28" aria-labelledby="teachers-title">
         <div className="container">
           <span id="teachers-title" className="sr-only">Our teachers</span>
           <TeamShowcase teachers={teachers} classes={classes} groups={groups} text={sec("home.teachers")} limit={5} cta={{ href: "/about/#teachers", label: "Meet the team" }} />
         </div>
-      </section></Isolated>
+      </section>
 
       {/* 9. App */}
-      <Isolated><section className="pb-20 md:pb-28" aria-label="Mobile app">
+      <section className="pb-20 md:pb-28" aria-label="Mobile app">
         <div className="container"><AppDownload app={site.app} title={sec("home.app").title} eyebrow={sec("home.app").eyebrow} /></div>
-      </section></Isolated>
+      </section>
 
       {/* 10. Social — Follow our journey */}
-      <Isolated><section className="bg-white py-20 md:py-28" aria-labelledby="social-title">
+      <section className="bg-white py-20 md:py-28" aria-labelledby="social-title">
         <div className="container">
           <SectionHeader id="social-title" eyebrow={sec("home.social").eyebrow} align="center" title={sec("home.social").title} body={sec("home.social").body} />
           <SocialGrid links={site.socials} />
         </div>
-      </section></Isolated>
+      </section>
 
       {/* 11. FAQs */}
       {faqs.length > 0 && (
-        <Isolated><section className="bg-paper py-20 md:py-28" aria-label="Frequently asked questions">
+        <section className="bg-paper py-20 md:py-28" aria-label="Frequently asked questions">
           <div className="container"><Faq items={faqs} text={sec("home.faq")} /></div>
-        </section></Isolated>
+        </section>
       )}
 
       {/* 12. Newsletter */}
-      <Isolated><section className="py-20 md:py-28" aria-labelledby="newsletter-title">
+      <section className="py-20 md:py-28" aria-labelledby="newsletter-title">
         <div className="container">
           <div className="relative overflow-hidden rounded-5xl bg-brand-500 px-6 py-12 text-white md:px-14 md:py-16">
             <svg aria-hidden viewBox="0 0 200 200" className="absolute -right-16 -top-16 w-72 text-brand-400"><circle cx="100" cy="100" r="100" fill="currentColor" /></svg>
@@ -197,7 +193,7 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-      </section></Isolated>
+      </section>
     </>
   );
 }

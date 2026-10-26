@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Suspense } from "react";
 import "@fontsource-variable/bricolage-grotesque";
 import "@fontsource-variable/nunito-sans";
 import "@fontsource/instrument-serif/latin-400.css";
@@ -62,10 +61,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="flex min-h-screen flex-col">
         <div id="scroll-progress" aria-hidden className="fixed inset-x-0 top-0 z-[60] h-1 origin-left scale-x-0 bg-gradient-to-r from-brand-500 via-sun-400 to-coral-400" />
         <a href="#main" className="skip-link rounded-full bg-ink px-5 py-3 font-semibold text-white">Skip to content</a>
-        {/* Separate boundaries: a hydration mismatch in one region re-renders only that region, not the whole document. */}
-        <Suspense fallback={null}><Navbar site={site} groups={groups} classes={classes.map(({ id, name, group, ages }) => ({ id, name, group, ages }))} /></Suspense>
-        <main id="main" className="flex flex-1 flex-col"><Suspense fallback={null}>{children}</Suspense></main>
-        <Suspense fallback={null}><Footer site={site} groups={groups} visit={pages.sections["footer.visit"]} /></Suspense>
+        {/* One hydration pass, no Suspense boundaries here: <Motion> rewrites text (count-ups, word splits), so it
+            must run only after every section has hydrated. Deferred boundaries caused React #418 text mismatches. */}
+        <Navbar site={site} groups={groups} classes={classes.map(({ id, name, group, ages }) => ({ id, name, group, ages }))} />
+        <main id="main" className="flex flex-1 flex-col">{children}</main>
+        <Footer site={site} groups={groups} visit={pages.sections["footer.visit"]} />
         <Motion />
         <Cursor />
       </body>
