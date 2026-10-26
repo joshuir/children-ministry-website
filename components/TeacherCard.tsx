@@ -23,10 +23,9 @@ export function TeacherPortrait({ teacher, className, big }: { teacher: Teacher;
         <img src={teacher.photo} alt={`Portrait of ${teacher.name}`} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
       ) : (
         <>
-          <svg aria-hidden viewBox="0 0 200 250" className="absolute inset-0 h-full w-full opacity-25" preserveAspectRatio="xMidYMid slice">
-            <defs><pattern id={`dots-${teacher.id}`} width="16" height="16" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.6" fill="currentColor" /></pattern></defs>
-            <rect width="200" height="250" fill={`url(#dots-${teacher.id})`} />
-          </svg>
+          {/* CSS dots, not an SVG <pattern>: the pattern's id repeated when a teacher appeared twice, and iOS Safari
+              painted the patterned layer as a black block once its parent was transformed (hover zoom). */}
+          <span aria-hidden className="absolute inset-0 opacity-25" style={{ backgroundImage: "radial-gradient(circle at 2px 2px, currentColor 1.6px, transparent 2.1px)", backgroundSize: "13px 13px" }} />
           <span aria-hidden className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/15 transition-transform duration-500 group-hover:scale-125" />
           <span aria-hidden className="absolute -bottom-16 -left-10 h-48 w-48 rounded-full bg-black/10" />
           {/* simple head-and-shoulders silhouette */}
