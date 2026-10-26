@@ -6,7 +6,7 @@
 import "server-only";
 import { getContent } from "@/lib/cms/data";
 import { cleanBank } from "@/lib/learn";
-import type { BibleLesson, MotionSettings, Post } from "@/lib/types";
+import type { BibleLesson, LearnLesson, MotionSettings, Post } from "@/lib/types";
 
 export const getSite = async () => (await getContent()).site;
 export const getHome = async () => (await getContent()).home;
@@ -42,8 +42,17 @@ export const getSocialEmbeds = async () => [...(await getContent()).socialEmbeds
 /** Published FAQs, optionally limited to some categories. */
 export const getFaqs = async (cats?: string[]) => (await getContent()).faqs.filter((f) => !f.hidden && f.question.trim() && (!cats || !f.category || cats.includes(f.category)));
 
-/** Bible games: hidden, incomplete and duplicate questions are removed so children never see repeats. */
-export const getQuiz = async () => cleanBank((await getContent()).quiz);
+/** Bible games: everything the learning platform needs, cleaned (hidden, incomplete and duplicate items removed). */
+export async function getLearn() {
+  const c = await getContent();
+  const categories = (c.learnCategories || []).filter((x) => !x.hidden && x.id && x.title);
+  const bank = cleanBank(c.quiz, categories);
+  const catIds = new Set(categories.map((x) => x.id));
+  const lessons = (c.learnLessons || []).filter((l) => !l.hidden && l.id && (l.category === "mixed" || catIds.has(l.category)))
+    .map((l) => ({ ...l, section: Math.min(5, Math.max(1, Number(l.section) || 1)) as LearnLesson["section"], size: Math.min(12, Math.max(3, Number(l.size) || 6)) }));
+  const challenges = (c.learnChallenges || []).filter((x) => !x.hidden && x.id && Number(x.target) > 0).map((x) => ({ ...x, target: Number(x.target), reward: Number(x.reward) || 0 }));
+  return { bank, categories, lessons, challenges };
+}
 
 export const getGallery = async () => (await getContent()).gallery;
 export const getGalleryCategories = async () => (await getContent()).galleryCategories;

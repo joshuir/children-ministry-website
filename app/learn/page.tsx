@@ -1,23 +1,25 @@
 import type { Metadata } from "next";
-import { InteractiveHero } from "@/components/InteractiveHero";
 import { LearnHub } from "@/components/learn/LearnHub";
-import { getQuiz } from "@/lib/content";
+import { getLearn } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Bible games",
-  description: "Fun, bite-sized Bible games for children: story quizzes, memory verses, Bible people and places, and writing practice — every question is new until you've tried them all.",
+  description: "A fun Bible learning journey for children: quizzes, memory verses, Bible people and places, word puzzles, spelling, matching, story order and writing — with Pip the lamb, daily challenges, streaks and badges.",
   alternates: { canonical: "/learn/" },
 };
 
 export default async function LearnPage() {
-  const bank = await getQuiz();
+  const { bank, lessons, categories, challenges } = await getLearn();
   return (
-    <>
-      <InteractiveHero eyebrow="Learn & play" title="Bible games for curious kids" highlight="Bible games" tone="blue"
-        body="Five minutes a day: quizzes, memory verses, Bible heroes and places. Earn stars and keep your streak going!" />
-      <section className="pb-24 pt-6" aria-label="Choose a game">
-        <div className="container"><LearnHub bank={bank} /></div>
-      </section>
-    </>
+    <section aria-label="Bible games" className="bg-[linear-gradient(180deg,#EEF4FF_0%,#F7F5F0_420px)] pb-16 pt-24 md:pt-28">
+      <div className="container">
+        <header className="mb-4 text-center">
+          <p className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-sm font-extrabold uppercase tracking-[0.1em] text-brand-600 shadow-card">Learn &amp; play</p>
+          <h1 className="mt-3 font-display text-[clamp(2.2rem,6vw,3.6rem)] font-extrabold leading-[1] tracking-tight">Bible games</h1>
+          <p className="mx-auto mt-2 max-w-lg text-lg text-ink-soft">Five minutes a day with Pip the lamb. Grow from Seeds to Fruit!</p>
+        </header>
+        <LearnHub bank={bank} lessons={lessons} categories={categories} challenges={challenges} />
+      </div>
+    </section>
   );
 }

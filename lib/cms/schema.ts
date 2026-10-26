@@ -4,10 +4,10 @@ import { groups, classes, lessons } from "@/content/classes";
 import { events, gallery, galleryCategories, posts } from "@/content/community";
 import { pages, typography } from "@/content/pages";
 import { faqs } from "@/content/faqs";
-import { quiz } from "@/content/learn";
+import { CATEGORIES, CHALLENGES, defaultLessons, quiz } from "@/content/learn";
 import type {
   AboutContent, BibleLesson, ClassInfo, EventItem, GalleryCategory, GalleryItem, GroupInfo,
-  Faq, HomeContent, MotionSettings, PagesContent, Post, QuizQuestion, SiteSettings, SocialEmbed, Teacher, Typography,
+  Faq, HomeContent, LearnCategory, LearnChallenge, LearnLesson, MotionSettings, PagesContent, Post, QuizQuestion, SiteSettings, SocialEmbed, Teacher, Typography,
 } from "@/lib/types";
 
 /** Everything editable in the CMS lives in one versioned JSON document. */
@@ -30,10 +30,18 @@ export interface CmsContent {
   faqs: Faq[];
   /** Bible learning games question bank. */
   quiz: QuizQuestion[];
+  /** Seed version of the question bank already merged into stored content (see normalize). */
+  quizSeed?: number;
+  learnCategories: LearnCategory[];
+  learnLessons: LearnLesson[];
+  learnChallenges: LearnChallenge[];
   motion: MotionSettings;
   pages: PagesContent;
   typography: Typography;
 }
+
+/** Bump when new seed questions/lessons ship, so saved content picks them up once. */
+const QUIZ_SEED = 2;
 
 const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v));
 
@@ -54,6 +62,10 @@ export function seedContent(): CmsContent {
     posts: posts.map((p) => ({ ...p, status: "published" as const })),
     faqs,
     quiz,
+    quizSeed: QUIZ_SEED,
+    learnCategories: CATEGORIES,
+    learnLessons: defaultLessons(quiz),
+    learnChallenges: CHALLENGES,
     motion: { mode: "auto" },
     pages,
     typography,
@@ -82,6 +94,16 @@ export function normalize(raw: Partial<CmsContent> | null | undefined): CmsConte
   };
   out.typography = { ...seed.typography, ...(out.typography || {}) };
   out.motion = { ...seed.motion, ...(out.motion || {}) };
+  // One-time upgrade of saved content: add seed questions/categories/lessons that didn't exist when it
+  // was saved (by id), without bringing back anything staff deleted after this version.
+  if ((out.quizSeed || 1) < QUIZ_SEED) {
+    const add = <T extends { id: string }>(have: T[], from: T[]) => { const ids = new Set(have.map((x) => x.id)); return [...have, ...from.filter((x) => !ids.has(x.id))]; };
+    out.quiz = add(out.quiz || [], seed.quiz);
+    out.learnCategories = add(out.learnCategories || [], seed.learnCategories);
+    out.learnLessons = add(out.learnLessons || [], seed.learnLessons);
+    out.learnChallenges = add(out.learnChallenges || [], seed.learnChallenges);
+    out.quizSeed = QUIZ_SEED;
+  }
   if (out.home?.hero && out.home.hero.rotate === undefined) out.home = { ...out.home, hero: { ...out.home.hero, rotate: seed.home.hero.rotate } };
   if (out.about && out.about.historyDoc === undefined) out.about = { ...out.about, historyDoc: seed.about.historyDoc };
   return out;
@@ -90,7 +112,7 @@ export function normalize(raw: Partial<CmsContent> | null | undefined): CmsConte
 /** Light structural check so a bad import can't break the public site. */
 export function validate(c: any): string | null {
   if (!c || typeof c !== "object") return "Content must be an object.";
-  const arrays = ["teachers", "groups", "classes", "lessons", "events", "galleryCategories", "gallery", "posts", "socialEmbeds", "faqs", "quiz"];
+  const arrays = ["teachers", "groups", "classes", "lessons", "events", "galleryCategories", "gallery", "posts", "socialEmbeds", "faqs", "quiz", "learnCategories", "learnLessons", "learnChallenges"];
   for (const k of arrays) if (c[k] !== undefined && !Array.isArray(c[k])) return `“${k}” must be a list.`;
   for (const k of ["site", "home", "about", "pages", "typography", "motion"]) if (c[k] !== undefined && (typeof c[k] !== "object" || Array.isArray(c[k]))) return `“${k}” must be an object.`;
   const size = JSON.stringify(c).length;

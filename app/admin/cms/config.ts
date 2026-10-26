@@ -1,9 +1,9 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BookOpen, CalendarDays, Contact, GraduationCap, Home, Images, Info, LayoutDashboard, MessageSquareText, Inbox,
-  Newspaper, Share2, Smartphone, Users, History, FolderOpen, Rss, Layers, Type, PanelsTopLeft, HelpCircle, KeyRound, Gamepad2, Sparkles,
+  Newspaper, Share2, Smartphone, Users, History, FolderOpen, Rss, Layers, Type, PanelsTopLeft, HelpCircle, KeyRound, Gamepad2, Sparkles, Target,
 } from "lucide-react";
-import { LEVELS, TRACKS } from "@/content/learn";
+import { SECTIONS as JOURNEY } from "@/content/learn";
 import { FONT_CHOICES } from "@/content/pages";
 import { FAQ_CATEGORIES } from "@/content/faqs";
 import type { CmsContent } from "@/lib/cms/schema";
@@ -18,8 +18,11 @@ const catOpts = (c: CmsContent): Opt[] => c.galleryCategories.map((t) => ({ valu
 const today = () => new Date().toISOString().slice(0, 10);
 const QUIZ_KINDS: Opt[] = [
   { value: "choice", label: "Multiple choice" }, { value: "truefalse", label: "True or false" }, { value: "fill", label: "Fill the gap" },
-  { value: "order", label: "Build the verse" }, { value: "write", label: "Type the answer" }, { value: "reflect", label: "Open writing" },
+  { value: "order", label: "Build the verse" }, { value: "scramble", label: "Word puzzle (unscramble)" }, { value: "spell", label: "Spelling" },
+  { value: "match", label: "Match up" }, { value: "sequence", label: "Story order" }, { value: "write", label: "Type the answer" }, { value: "reflect", label: "Open writing" },
 ];
+const SECTION_OPTS: Opt[] = JOURNEY.map((s) => ({ value: String(s.id), label: `${s.id} · ${s.title}` }));
+const SECTION_LABEL = (n: unknown) => { const s = JOURNEY.find((x) => x.id === Number(n)); return s ? `${s.id} · ${s.title}` : String(n); };
 
 const verse: Field = { k: "memoryVerse", label: "Memory verse", type: "group", fields: [{ k: "text", label: "Verse", type: "textarea", rows: 2, wide: true }, { k: "reference", label: "Reference", type: "text" }] };
 
@@ -233,24 +236,72 @@ export const SECTIONS: { title: string; items: Section[] }[] = [
         ],
       },
       {
-        kind: "collection", id: "quiz", label: "Bible games", icon: Gamepad2, path: "quiz",
-        blurb: "Questions for the Bible learning games. Each child sees every question once before any repeats, so the more you add, the longer the games last. A question that repeats another one's wording is skipped automatically.",
+        kind: "collection", id: "quiz", label: "Bible games · questions", icon: Gamepad2, path: "quiz",
+        blurb: "Questions for the Bible games. Each child sees every question once before anything repeats, so the more you add, the longer the journey lasts. A question that repeats another's wording is skipped automatically.",
         itemTitle: (v) => v.prompt || "New question",
-        itemSub: (v) => `${TRACKS.find((t) => t.id === v.track)?.title ?? v.track} · ${LEVELS.find((l) => l.id === Number(v.level))?.ages ?? ""} · ${QUIZ_KINDS.find((k) => k.value === v.kind)?.label ?? v.kind}${v.hidden ? " · hidden" : ""}`,
+        itemSub: (v, c) => `${c.learnCategories?.find((t) => t.id === v.track)?.title ?? v.track} · ${SECTION_LABEL(v.level)} · ${QUIZ_KINDS.find((k) => k.value === v.kind)?.label ?? v.kind}${v.hidden ? " · hidden" : ""}`,
         uniqueBy: (v) => v.id,
         newItem: () => ({ id: "q" + Date.now().toString(36), track: "scripture", level: 1, kind: "choice", prompt: "", answer: "", options: ["", "", ""], reference: "" }),
-        filter: { label: "Game", options: () => TRACKS.map((t) => ({ value: t.id, label: t.title })), match: (v, val) => v.track === val },
+        filter: { label: "Game", options: (c) => (c.learnCategories || []).map((t) => ({ value: t.id, label: t.title })), match: (v, val) => v.track === val },
         fields: [
-          { k: "prompt", label: "Question", type: "textarea", rows: 2, wide: true, required: true, help: "For “Fill the gap”, write ___ where the missing word goes. For “Build the verse”, write a short instruction such as “Build the verse.”" },
-          { k: "track", label: "Game", type: "select", options: TRACKS.map((t) => ({ value: t.id, label: t.title })) },
-          { k: "level", label: "Age group", type: "select", options: LEVELS.map((l) => ({ value: String(l.id), label: `${l.label} (${l.ages})` })) },
+          { k: "prompt", label: "Question or clue", type: "textarea", rows: 2, wide: true, required: true, help: "Fill the gap: write ___ where the missing word goes. Word puzzle / Spelling: write the clue. Match up / Story order: write the instruction, e.g. “Put Noah's story in order.”" },
+          { k: "track", label: "Game category", type: "select", options: (c) => (c.learnCategories || []).map((t) => ({ value: t.id, label: t.title })) },
+          { k: "level", label: "Difficulty (journey section)", type: "select", options: SECTION_OPTS },
           { k: "kind", label: "Question type", type: "select", options: () => QUIZ_KINDS },
-          { k: "answer", label: "Correct answer", type: "text", wide: true, help: "Multiple choice / fill the gap: the right answer. True or false: type true or false. Build the verse: the whole verse. Type the answer: separate other accepted answers with | (e.g. 12|twelve). Leave empty for open writing." },
-          { k: "options", label: "Wrong answers", type: "strings", itemLabel: "Wrong answer", help: "For multiple choice and fill the gap — up to three believable wrong answers." },
+          { k: "answer", label: "Correct answer", type: "text", wide: true, help: "Multiple choice / fill the gap: the right answer. True or false: true or false. Build the verse: the whole verse. Word puzzle / Spelling: the word. Type the answer: separate other accepted answers with | (e.g. 12|twelve). Leave empty for Match up, Story order and Open writing." },
+          { k: "options", label: "Wrong answers", type: "strings", itemLabel: "Wrong answer", help: "Multiple choice and fill the gap — up to three believable wrong answers." },
+          { k: "pairs", label: "Pairs (Match up)", type: "list", itemTitle: (r) => `${r.a || "…"} → ${r.b || "…"}`, newItem: () => ({ a: "", b: "" }), fields: [{ k: "a", label: "Left", type: "text" }, { k: "b", label: "Its partner", type: "text" }] },
+          { k: "items", label: "Events in the right order (Story order)", type: "strings", itemLabel: "Event", help: "List them first to last — children see them shuffled." },
+          { k: "scripture", label: "Scripture text (optional)", type: "textarea", rows: 2, wide: true, help: "Shown with the question, e.g. the verse being learned." },
           { k: "reference", label: "Bible reference", type: "text", placeholder: "Luke 10:27" },
           { k: "explain", label: "Shown after answering (optional)", type: "textarea", rows: 2, wide: true },
           { k: "id", label: "ID", type: "text", help: "Must be unique. Changing it makes children see the question again." },
           { k: "hidden", label: "Hide this question", type: "checkbox" },
+        ],
+      },
+      {
+        kind: "collection", id: "learnCategories", label: "Bible games · categories", icon: Layers, path: "learnCategories",
+        blurb: "The kinds of game on the journey (Scripture quiz, Word puzzles…). Hiding one hides its lessons and questions.",
+        itemTitle: (v) => v.title || "New category", itemSub: (v) => `${v.id}${v.hidden ? " · hidden" : ""}`, uniqueBy: (v) => v.id,
+        newItem: () => ({ id: "cat" + Date.now().toString(36), title: "", blurb: "", tone: "blue", icon: "book" }),
+        fields: [
+          { k: "title", label: "Name", type: "text", required: true },
+          { k: "blurb", label: "Short description", type: "text", wide: true },
+          { k: "tone", label: "Colour", type: "select", options: [{ value: "blue", label: "Blue" }, { value: "sun", label: "Yellow" }, { value: "coral", label: "Coral" }, { value: "mint", label: "Sky" }, { value: "lilac", label: "Navy" }] },
+          { k: "icon", label: "Icon", type: "select", options: [["book", "Book"], ["sparkles", "Sparkles"], ["users", "People"], ["map", "Map"], ["blank", "Gap"], ["puzzle", "Puzzle"], ["spell", "Spelling"], ["link", "Link"], ["clock", "Clock"], ["pen", "Pen"]].map(([value, label]) => ({ value, label })) },
+          { k: "id", label: "ID", type: "text", help: "Questions and lessons point to this. Change with care." },
+          { k: "hidden", label: "Hide this category", type: "checkbox" },
+        ],
+      },
+      {
+        kind: "collection", id: "learnLessons", label: "Bible games · journey lessons", icon: GraduationCap, path: "learnLessons",
+        blurb: "The stops on the learning journey, in order. Each lesson draws new questions from its category at its section's difficulty. A “Checkpoint” mixes every game.",
+        itemTitle: (v) => v.title || "New lesson", itemSub: (v, c) => `${SECTION_LABEL(v.section)} · ${v.category === "mixed" ? "Checkpoint (all games)" : c.learnCategories?.find((t) => t.id === v.category)?.title ?? v.category} · ${v.size} questions${v.hidden ? " · hidden" : ""}`,
+        uniqueBy: (v) => v.id,
+        newItem: () => ({ id: "lesson" + Date.now().toString(36), title: "", section: 1, category: "scripture", size: 6 }),
+        filter: { label: "Section", options: () => SECTION_OPTS, match: (v, val) => String(v.section) === val },
+        fields: [
+          { k: "title", label: "Title", type: "text", required: true },
+          { k: "section", label: "Journey section", type: "select", options: SECTION_OPTS },
+          { k: "category", label: "Game", type: "select", options: (c) => [{ value: "mixed", label: "Checkpoint — all games" }, ...(c.learnCategories || []).map((t) => ({ value: t.id, label: t.title }))] },
+          { k: "size", label: "Questions per lesson", type: "number", help: "Between 3 and 12." },
+          { k: "id", label: "ID", type: "text", help: "Used in the lesson's web address and to remember who finished it." },
+          { k: "hidden", label: "Hide this lesson", type: "checkbox" },
+        ],
+      },
+      {
+        kind: "collection", id: "learnChallenges", label: "Bible games · daily challenges", icon: Target, path: "learnChallenges",
+        blurb: "Three of these are picked each day for everyone. Finishing one gives bonus XP.",
+        itemTitle: (v) => v.title || "New challenge", itemSub: (v) => `${v.metric} · ${v.target} · +${v.reward} XP${v.hidden ? " · hidden" : ""}`, uniqueBy: (v) => v.id,
+        newItem: () => ({ id: "ch" + Date.now().toString(36), title: "", metric: "correct", target: 10, reward: 10 }),
+        fields: [
+          { k: "title", label: "Shown to children", type: "text", wide: true, required: true, placeholder: "Get 10 answers right" },
+          { k: "metric", label: "What counts", type: "select", options: [{ value: "xp", label: "XP earned today" }, { value: "correct", label: "Right answers today" }, { value: "lessons", label: "Lessons finished today" }, { value: "perfect", label: "Perfect lessons today" }, { value: "category", label: "Answers in one game today" }] },
+          { k: "category", label: "Game (for “Answers in one game”)", type: "select", options: (c) => (c.learnCategories || []).map((t) => ({ value: t.id, label: t.title })) },
+          { k: "target", label: "Target", type: "number" },
+          { k: "reward", label: "Bonus XP", type: "number" },
+          { k: "id", label: "ID", type: "text" },
+          { k: "hidden", label: "Hide this challenge", type: "checkbox" },
         ],
       },
       {

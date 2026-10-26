@@ -246,29 +246,75 @@ export interface Typography {
 
 /* ------------------------------------------------------------ Bible learning games */
 
-export type QuizTrack = "scripture" | "verses" | "characters" | "places" | "writing";
-/** 1 = ages 3–6, 2 = ages 7–9, 3 = ages 10–13 */
-export type QuizLevel = 1 | 2 | 3;
+/** A game category id (managed in the content manager). */
+export type QuizTrack = string;
+/** Difficulty 1 (ages 3–6) … 5 (confident 12–13 year olds). Journey sections follow difficulty. */
+export type QuizLevel = 1 | 2 | 3 | 4 | 5;
 /**
  * choice    pick the right answer (answer + options as distractors)
  * truefalse answer is "true" or "false"
  * fill      complete the sentence: prompt contains "___"; options are distractor words
- * order     tap the words of `answer` in the right order (a verse builder)
+ * order     tap the words of `answer` in the right order (verse builder)
+ * scramble  word puzzle: rebuild `answer` from its shuffled letters
+ * spell     spelling challenge: type `answer` into letter boxes from the clue in `prompt`
+ * match     match each left item to its partner (`pairs`)
+ * sequence  put story events (`items`, listed in the right order) into order
  * write     type the answer; `answer` may list alternatives separated by "|"
  * reflect   open writing prompt — any thoughtful answer is welcome (nothing is stored)
  */
-export type QuizKind = "choice" | "truefalse" | "fill" | "order" | "write" | "reflect";
+export type QuizKind = "choice" | "truefalse" | "fill" | "order" | "scramble" | "spell" | "match" | "sequence" | "write" | "reflect";
 
 export interface QuizQuestion {
   id: string;
+  /** Category id. */
   track: QuizTrack;
+  /** Difficulty 1–5. */
   level: QuizLevel;
   kind: QuizKind;
   prompt: string;
   answer: string;
   options?: string[];
+  pairs?: { a: string; b: string }[];
+  items?: string[];
   reference?: string;
+  /** The verse text, shown with memory-verse and scripture questions. */
+  scripture?: string;
   explain?: string;
+  hidden?: boolean;
+}
+
+export type LearnTone = "blue" | "sun" | "coral" | "mint" | "lilac";
+export type LearnIcon = "book" | "sparkles" | "users" | "map" | "pen" | "puzzle" | "spell" | "link" | "clock" | "blank";
+
+export interface LearnCategory {
+  id: string;
+  title: string;
+  blurb: string;
+  tone: LearnTone;
+  icon: LearnIcon;
+  hidden?: boolean;
+}
+
+/** One stop on the learning journey. Sections run 1–5 and match question difficulty. */
+export interface LearnLesson {
+  id: string;
+  title: string;
+  section: QuizLevel;
+  /** Category id, or "mixed" for a checkpoint that reviews the whole section. */
+  category: string;
+  /** Questions per play-through. */
+  size: number;
+  hidden?: boolean;
+}
+
+export interface LearnChallenge {
+  id: string;
+  title: string;
+  /** What counts: XP earned, correct answers, lessons finished, perfect lessons, or answers in one category. */
+  metric: "xp" | "correct" | "lessons" | "perfect" | "category";
+  target: number;
+  category?: string;
+  reward: number;
   hidden?: boolean;
 }
 
