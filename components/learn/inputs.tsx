@@ -126,7 +126,12 @@ export function MatchInput({ q, setValue, locked, verdict }: InputProps) {
     return [...r].reverse();
   }, [q]);
   const [map, setMap] = useState<Record<string, string>>({});
-  const [sel, setSel] = useState<string | null>(null);
+  const [sel, setSelState] = useState<string | null>(null);
+  // the latest selection, readable immediately even before React re-renders (fast double taps)
+  const selRef = useRef<string | null>(null);
+  const mapRef = useRef<Record<string, string>>({});
+  const setSel = (v: string | null) => { selRef.current = v; setSelState(v); };
+  const commit = (m: Record<string, string>) => { mapRef.current = m; setMap(m); };
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => { setValue(Object.keys(map).length === lefts.length ? JSON.stringify(map) : ""); }, [map, lefts.length, setValue]);
   const pairIndex = (left: string) => lefts.indexOf(left);
@@ -134,19 +139,21 @@ export function MatchInput({ q, setValue, locked, verdict }: InputProps) {
 
   function pickLeft(a: string) {
     if (locked) return;
-    if (map[a]) { const m = { ...map }; delete m[a]; setMap(m); setSel(a); return; }
-    setSel(sel === a ? null : a);
+    const cur = mapRef.current;
+    if (cur[a]) { const m = { ...cur }; delete m[a]; commit(m); setSel(a); return; }
+    setSel(selRef.current === a ? null : a);
   }
   function pickRight(b: string) {
     if (locked) return;
-    const owner = Object.keys(map).find((k) => map[k] === b);
-    if (owner && !sel) { const m = { ...map }; delete m[owner]; setMap(m); return; }
-    if (!sel) return;
-    const m = { ...map };
+    const cur = mapRef.current, chosen = selRef.current;
+    const owner = Object.keys(cur).find((k) => cur[k] === b);
+    if (owner && !chosen) { const m = { ...cur }; delete m[owner]; commit(m); return; }
+    if (!chosen) return;
+    const m = { ...cur };
     if (owner) delete m[owner];
-    m[sel] = b;
-    setMap(m); setSel(null);
-    requestAnimationFrame(() => pop(`[data-pair="${pairIndex(sel)}"]`));
+    m[chosen] = b;
+    commit(m); setSel(null);
+    requestAnimationFrame(() => pop(`[data-pair="${pairIndex(chosen)}"]`));
   }
   const correct = (a: string) => (q.pairs || []).find((p) => p.a === a)?.b === map[a];
 
