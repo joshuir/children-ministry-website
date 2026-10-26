@@ -11,7 +11,7 @@ import type { Post, Teacher } from "@/lib/types";
 type Kind = Post["kind"];
 
 const filters: { id: "all" | Kind; label: string }[] = [
-  { id: "all", label: "All posts" }, { id: "announcement", label: "Announcements" }, { id: "verse", label: "Bible verses" },
+  { id: "all", label: "All posts" }, { id: "article", label: "Articles" }, { id: "announcement", label: "Announcements" }, { id: "verse", label: "Bible verses" },
   { id: "event", label: "Events" }, { id: "video", label: "Videos" }, { id: "image", label: "Photos" },
 ];
 

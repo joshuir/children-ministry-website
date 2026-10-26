@@ -95,7 +95,8 @@ export function BlogPost({ post, author }: { post: FeedPost; author?: Teacher })
           <p className="text-[17px] leading-relaxed">{post.body.replace(/^📣\s*/, "")}</p>
         </div>
       )}
-      {post.kind !== "announcement" && <p className="mt-4 whitespace-pre-line text-[17px] leading-relaxed text-ink">{post.body}</p>}
+      {post.kind === "article" && <ArticleBody title={post.title} body={post.body} />}
+      {post.kind !== "announcement" && post.kind !== "article" && <p className="mt-4 whitespace-pre-line text-[17px] leading-relaxed text-ink">{post.body}</p>}
 
       {post.verse && (
         <figure className="relative mt-4 overflow-hidden rounded-3xl bg-ink px-6 py-10 text-center text-white sm:px-10">
@@ -160,4 +161,32 @@ function icsHref(e: NonNullable<Post["event"]>) {
   const d = e.date.replace(/-/g, "");
   const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Children's Ministry//EN", "BEGIN:VEVENT", `UID:${d}-${e.title.replace(/\W/g, "")}@pcm-kids`, `DTSTART;VALUE=DATE:${d}`, `SUMMARY:${e.title}`, `LOCATION:${e.location}`, `DESCRIPTION:${e.time}`, "END:VEVENT", "END:VCALENDAR"].join("\r\n");
   return `data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`;
+}
+
+
+/** Long-form article: headline, the opening paragraph, and the rest revealed in place. */
+function ArticleBody({ title, body }: { title?: string; body: string }) {
+  const [open, setOpen] = useState(false);
+  const paras = body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+  const minutes = Math.max(1, Math.round(body.split(/\s+/).length / 200));
+  const rest = useRef<HTMLDivElement>(null);
+  useGSAP(() => {
+    if (!open || !rest.current || isReduced()) return;
+    gsap.fromTo(rest.current, { height: 0, autoAlpha: 0 }, { height: "auto", autoAlpha: 1, duration: 0.5, ease: "power2.out" });
+  }, { dependencies: [open] });
+  return (
+    <div className="mt-4">
+      <p className="text-xs font-extrabold uppercase tracking-[0.1em] text-brand-600">Article · {minutes} min read</p>
+      {title && <h3 className="mt-1 font-display text-2xl font-bold leading-tight text-ink">{title}</h3>}
+      <div className="mt-3 grid gap-4 text-[17px] leading-relaxed text-ink">
+        {paras[0] && <p>{paras[0]}</p>}
+        {open && <div ref={rest} className="grid gap-4 overflow-hidden">{paras.slice(1).map((p, i) => <p key={i} className="whitespace-pre-line">{p}</p>)}</div>}
+      </div>
+      {paras.length > 1 && (
+        <button type="button" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="mt-3 inline-flex min-h-[44px] items-center rounded-full bg-brand-50 px-4 text-sm font-bold text-brand-700 transition-colors hover:bg-brand-100">
+          {open ? "Show less" : "Read more"}
+        </button>
+      )}
+    </div>
+  );
 }

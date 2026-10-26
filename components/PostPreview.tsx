@@ -35,7 +35,8 @@ export function PostPreview({ post, author }: { post: Post; author?: Teacher }) 
           {post.kind === "video" && <span className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 shadow-lift"><Play className="ml-0.5 h-6 w-6 fill-ink" /></span>}
         </div>
       ) : null}
-      <p className="mt-4 line-clamp-3 flex-1 leading-relaxed text-ink-soft">{post.body}</p>
+      {post.kind === "article" && post.title && <h3 className="mt-4 font-display text-xl font-bold leading-snug text-ink">{post.title}</h3>}
+      <p className={post.kind === "article" && post.title ? "mt-2 line-clamp-3 flex-1 leading-relaxed text-ink-soft" : "mt-4 line-clamp-3 flex-1 leading-relaxed text-ink-soft"}>{post.body}</p>
       <div className="mt-4 flex items-center justify-between border-t border-ink/[0.07] pt-3 text-sm font-semibold text-ink-mute">
         <span className="flex items-center gap-1.5"><span className="flex -space-x-1">{top.map((r) => <span key={r} className="text-base">{reactionMetaStatic[r]}</span>)}</span>{total}</span>
         <span className="flex items-center gap-1.5"><MessageCircle className="h-4 w-4" />{post.comments.length}</span>

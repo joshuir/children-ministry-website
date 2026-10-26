@@ -158,7 +158,9 @@ export interface PostComment {
 
 export interface Post {
   id: string;
-  kind: "image" | "video" | "text" | "verse" | "announcement" | "event";
+  kind: "image" | "video" | "text" | "verse" | "announcement" | "event" | "article";
+  /** Articles only: the headline. The body holds the full text, with blank lines between paragraphs. */
+  title?: string;
   authorId: string;      // teachers only — children never post
   createdAt: string;
   body: string;
