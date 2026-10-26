@@ -1,4 +1,3 @@
-import { MotionToggle } from "./MotionToggle";
 import Link from "next/link";
 import { ArrowRight, Clock, LockKeyhole, Mail, MapPin, MessageCircle, Phone, ShieldCheck } from "lucide-react";
 import { Logo, buttonClass } from "./ui";
@@ -17,7 +16,7 @@ const legal = [
 
 const heading = "text-xs font-extrabold uppercase tracking-[0.14em] text-white/45";
 
-export function Footer({ site, groups, visit, motionSwitch = true }: { site: SiteSettings; groups: GroupInfo[]; visit?: SectionText; motionSwitch?: boolean }) {
+export function Footer({ site, groups, visit }: { site: SiteSettings; groups: GroupInfo[]; visit?: SectionText }) {
   const title = (visit?.title || "Come as you are this Sunday.").trim().split(" ");
   const cut = title.length > 3 ? title.length - 2 : title.length;
   const linkCls = "link-draw inline-flex min-h-[36px] items-center font-semibold text-white/80 transition-colors duration-100 hover:text-sun-300";
@@ -90,7 +89,6 @@ export function Footer({ site, groups, visit, motionSwitch = true }: { site: Sit
 
         <div className="mt-6 flex flex-col gap-4 border-t border-white/10 pt-6 text-sm md:flex-row md:items-center md:justify-between">
           <p className="text-white/50">© {new Date().getFullYear()} {site.name} · {site.church}</p>
-          {motionSwitch !== false && <MotionToggle />}
           <ul className="flex flex-wrap gap-x-5 gap-y-1">{legal.map((l) => <li key={l.href}><Link href={l.href} className="link-draw inline-flex min-h-[36px] items-center text-white/60 hover:text-white">{l.label}</Link></li>)}</ul>
           <Link href="/admin" prefetch={false} rel="nofollow" className="group inline-flex min-h-[36px] items-center gap-2 self-start rounded-full px-3 text-white/45 ring-1 ring-white/10 transition-colors duration-150 hover:bg-white/5 hover:text-white hover:ring-white/30 md:self-auto">
             <LockKeyhole className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-rotate-12" aria-hidden />Staff login

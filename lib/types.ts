@@ -276,6 +276,4 @@ export interface QuizQuestion {
 export interface MotionSettings {
   /** auto = follow each visitor's device setting; full = always animate; calm = gentle fades only. */
   mode: "auto" | "full" | "calm";
-  /** Show the Animations switch in the footer so visitors can choose for themselves. */
-  showSwitch: boolean;
 }

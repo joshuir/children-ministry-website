@@ -54,7 +54,7 @@ export function seedContent(): CmsContent {
     posts: posts.map((p) => ({ ...p, status: "published" as const })),
     faqs,
     quiz,
-    motion: { mode: "auto", showSwitch: true },
+    motion: { mode: "auto" },
     pages,
     typography,
     socialEmbeds: [

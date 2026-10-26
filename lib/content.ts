@@ -51,7 +51,7 @@ export const getGalleryCategories = async () => (await getContent()).galleryCate
 export const getPages = async () => (await getContent()).pages;
 export const getTypography = async () => (await getContent()).typography;
 /** Falls back to defaults if cached content predates the Animations setting. */
-export const getMotion = async (): Promise<MotionSettings> => ({ mode: "auto", showSwitch: true, ...(((await getContent()).motion as Partial<MotionSettings> | undefined) ?? {}) });
+export const getMotion = async (): Promise<MotionSettings> => ({ mode: "auto", ...(((await getContent()).motion as Partial<MotionSettings> | undefined) ?? {}) });
 /** Hero text for a page. */
 export const getHeroText = async (k: import("@/lib/types").PageKey) => (await getContent()).pages.heroes[k];
 /** Section heading text, e.g. sec("home.events"). */

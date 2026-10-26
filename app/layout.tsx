@@ -53,7 +53,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en-GB" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: motionBoot + motionBootScript(motion.mode, motion.showSwitch) }} />
+        <script dangerouslySetInnerHTML={{ __html: motionBoot + motionBootScript(motion.mode) }} />
         <style id="cms-type" dangerouslySetInnerHTML={{ __html: typographyCss(type) }} />
         {fonts && <><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" /><link rel="stylesheet" href={fonts} /></>}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -65,7 +65,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             must run only after every section has hydrated. Deferred boundaries caused React #418 text mismatches. */}
         <Navbar site={site} groups={groups} classes={classes.map(({ id, name, group, ages }) => ({ id, name, group, ages }))} />
         <main id="main" className="flex flex-1 flex-col">{children}</main>
-        <Footer site={site} groups={groups} visit={pages.sections["footer.visit"]} motionSwitch={motion.showSwitch} />
+        <Footer site={site} groups={groups} visit={pages.sections["footer.visit"]} />
         <Motion />
         <Cursor />
       </body>

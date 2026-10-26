@@ -416,7 +416,6 @@ export const SECTIONS: { title: string; items: Section[] }[] = [
             { value: "full", label: "Full animations for everyone" },
             { value: "calm", label: "Calm for everyone — gentle fades only" },
           ], help: "Automatic respects people who turn animations off on their phone or computer (on Windows: Settings → Accessibility → Visual effects)." },
-          { k: "showSwitch", label: "Show the Animations switch in the footer", type: "checkbox", help: "Lets visitors choose On or Calm for themselves. Their choice overrides the style above on their device." },
         ],
       },
       {
