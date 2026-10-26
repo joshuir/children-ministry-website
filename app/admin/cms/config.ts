@@ -167,7 +167,7 @@ export const SECTIONS: { title: string; items: Section[] }[] = [
         itemSub: (v) => `${v.date}${v.endDate && v.endDate !== v.date ? ` → ${v.endDate}` : ""} · ${v.time}`, idFrom: "title",
         uniqueBy: (v) => v.id, sort: (a, b) => a.date.localeCompare(b.date), thumb: (v) => v.image?.src ? { src: v.image.src } : { scene: v.scene, tone: v.tone },
         filter: { label: "Type", options: () => EVENT_CATEGORIES.map((c) => ({ value: c.id, label: c.label })), match: (v, val) => (v.category || "special") === val },
-        newItem: () => ({ id: "", title: "", date: today(), time: "9:00 am", location: "Main Auditorium", summary: "", tone: "blue", scene: "worship", category: "special" }),
+        newItem: () => ({ id: "ev" + Date.now().toString(36), title: "", date: today(), time: "9:00 am", location: "Main Auditorium", summary: "", tone: "blue", scene: "worship", category: "special" }),
         fields: [
           { k: "title", label: "Event name", type: "text", required: true, wide: true },
           { k: "date", label: "Start date", type: "date", required: true },

@@ -3,7 +3,7 @@
 import { useRef, type ReactNode } from "react";
 import clsx from "clsx";
 import { gsap, useGSAP, Draggable } from "@/lib/gsap";
-import { MQ, heroIntro, heroMouseInteraction, heroScroll, intensity, tierOf } from "@/lib/motion";
+import { MQ, heroIntro, heroMouseInteraction, heroScroll, intensity, playSafely, tierOf } from "@/lib/motion";
 import { Hand } from "lucide-react";
 import { MediaFrame } from "./ui";
 import { whenIntroDone } from "./Intro";
@@ -46,14 +46,16 @@ export function InteractiveHero({ eyebrow, title, highlight, body, tone = "blue"
       const t = tierOf(ctx.conditions);
       if (t.reduce) {
         const intro = heroIntro(el, true);
-        const off = whenIntroDone(() => intro.play());
-        return () => off();
+        let stopSafety = () => {};
+        const off = whenIntroDone(() => { stopSafety = playSafely(intro); });
+        return () => { off(); stopSafety(); };
       }
       const intro = heroIntro(el);
-      const off = whenIntroDone(() => intro.play());
+      let stopSafety = () => {};
+        const off = whenIntroDone(() => { stopSafety = playSafely(intro); });
       const stopMouse = t.mobile ? () => {} : heroMouseInteraction(el, intensity(t));
       heroScroll(el, t.mobile ? 0.5 : 1);
-      return () => { off(); stopMouse(); };
+      return () => { off(); stopSafety(); stopMouse(); };
     });
     // Stickers can be picked up and flung on every device (with keyboard-free fallback: they're decorative).
     Draggable.create(el.querySelectorAll(".ph-sticker"), {

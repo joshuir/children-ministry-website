@@ -49,6 +49,16 @@ const q = (root: Element, sel: string) => gsap.utils.toArray<HTMLElement>(root.q
 
 /* -------------------------------------------------------------- hero */
 
+/**
+ * Plays an entrance timeline, and jumps it to the end if frames are paused or throttled (hidden tab,
+ * busy device) so the content it reveals is never left hidden. Returns a cleanup function.
+ */
+export function playSafely(tl: gsap.core.Timeline, ms = 2500) {
+  tl.play();
+  const t = window.setTimeout(() => { if (tl.progress() < 1) tl.progress(1); }, Math.max(ms, tl.duration() * 1000 + 600));
+  return () => window.clearTimeout(t);
+}
+
 /** Staged, cinematic entrance. Returns a paused timeline — call .play() when the page is ready. */
 export function heroIntro(root: HTMLElement, calm = false) {
   const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });

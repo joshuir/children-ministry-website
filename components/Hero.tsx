@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { gsap, useGSAP, whileVisible } from "@/lib/gsap";
-import { MQ, heroIntro, heroMouseInteraction, heroScroll, intensity, tierOf } from "@/lib/motion";
+import { MQ, heroIntro, heroMouseInteraction, heroScroll, intensity, playSafely, tierOf } from "@/lib/motion";
 import { ArrowRight, BookOpen, Heart, Users } from "lucide-react";
 import { Button } from "./ui";
 import { Scene } from "./Scene";
@@ -35,15 +35,17 @@ export function Hero({ hero, site, lesson }: { hero: HomeContent["hero"]; site: 
       if (t.reduce) {
         // Calm variant: a soft fade-in; the rotating words are shown as one still line instead.
         const intro = heroIntro(el, true);
-        const off = whenIntroDone(() => intro.play());
-        return () => off();
+        let stopSafety = () => {};
+        const off = whenIntroDone(() => { stopSafety = playSafely(intro); });
+        return () => { off(); stopSafety(); };
       }
 
       // 1. Cinematic entrance: visual → headline → copy → CTAs → details, then the write-on loop begins.
       const intro = heroIntro(el);
       const loop = typeLoop(el);
       if (loop) intro.call(() => loop.start(), undefined, ">-0.2");
-      const off = whenIntroDone(() => intro.play());
+      let stopSafety = () => {};
+        const off = whenIntroDone(() => { stopSafety = playSafely(intro); });
 
       // 2. Pointer depth (desktop full strength, tablet softer, phones none).
       const stopMouse = t.mobile ? () => {} : heroMouseInteraction(el, k);
@@ -51,7 +53,7 @@ export function Hero({ hero, site, lesson }: { hero: HomeContent["hero"]; site: 
       // 3. Scroll transformation into the next section.
       heroScroll(el, t.mobile ? 0.5 : 1);
 
-      return () => { off(); stopMouse(); loop?.kill(); };
+      return () => { off(); stopSafety(); stopMouse(); loop?.kill(); };
     });
   }, { scope: root });
 

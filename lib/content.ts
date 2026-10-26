@@ -29,7 +29,20 @@ export const getAllLessons = async () => (await getContent()).lessons;
 export const getCurrentLesson = async (classId: string) => (await getLessonsFor(classId))[0];
 export const getLesson = async (classId: string, id: string) => (await getLessonsFor(classId)).find((l) => l.id === id);
 
-export const getEvents = async () => [...(await getContent()).events].sort((a, b) => a.date.localeCompare(b.date));
+/** Every event gets a unique, stable id (older CMS entries could be saved without one, which broke
+ *  single-event calendar downloads and made calendar apps merge events with the same blank UID). */
+export const getEvents = async () => {
+  const used = new Set<string>();
+  return [...(await getContent()).events]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map((e) => {
+      const base = (e.id || "").trim() || `${e.date}-${(e.title || "event").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40)}`;
+      let id = base, n = 2;
+      while (used.has(id)) id = `${base}-${n++}`;
+      used.add(id);
+      return id === e.id ? e : { ...e, id };
+    });
+};
 
 export const sortPosts = (list: Post[]) =>
   [...list].sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned) || b.createdAt.localeCompare(a.createdAt));
