@@ -1,9 +1,13 @@
+// "Sept" → "Sep": newer ICU (Node 22) and older browsers abbreviate September differently.
 export const fmtDate = (iso: string, opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "long", year: "numeric" }) =>
-  new Date(iso + (iso.length === 10 ? "T12:00:00Z" : "")).toLocaleDateString("en-GB", { timeZone: "UTC", ...opts });
+  new Date(iso + (iso.length === 10 ? "T12:00:00Z" : "")).toLocaleDateString("en-GB", { timeZone: "UTC", ...opts }).replace(/\bSept\b/, "Sep");
+
+/** Fixed short month names: ICU versions disagree ("Sep" vs "Sept"), which breaks hydration between server and browser. */
+export const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export const dayMonth = (iso: string) => {
-  const d = new Date(iso + "T12:00:00Z");
-  return { day: d.getUTCDate(), month: d.toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" }) };
+  const d = new Date(iso.slice(0, 10) + "T12:00:00Z");
+  return { day: d.getUTCDate(), month: MONTHS_SHORT[d.getUTCMonth()] };
 };
 
 export function timeAgo(iso: string, now = new Date()) {

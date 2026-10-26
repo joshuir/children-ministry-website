@@ -90,7 +90,7 @@ export default async function HomePage() {
       <section className="bg-white py-20 md:py-28" aria-labelledby="events-title">
         <div className="container">
           <SectionHeader id="events-title" eyebrow={sec("home.events").eyebrow} tone="coral" title={sec("home.events").title} body={sec("home.events").body} action={<Button href="/events/" variant="light">Events calendar <ArrowRight className="h-4 w-4" /></Button>} />
-          <EventsCalendar events={events} address={site.contact.address.join(", ")} mode="mini" initialMonth={new Date().toISOString().slice(0, 7)} />
+          <EventsCalendar events={events} address={site.contact.address.join(", ")} mode="mini" initialMonth={new Date().toISOString().slice(0, 7)} calendarName={site.shortName} />
         </div>
       </section>
 

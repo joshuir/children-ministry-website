@@ -1,3 +1,4 @@
+import { dayMonth } from "@/lib/format";
 import Link from "next/link";
 import { ArrowUpRight, BadgeCheck, MessageCircle, Play } from "lucide-react";
 import { Avatar, MediaFrame } from "./ui";
@@ -25,7 +26,7 @@ export function PostPreview({ post, author }: { post: Post; author?: Teacher }) 
         </div>
       ) : post.event ? (
         <div className="mt-4 flex items-center gap-4 rounded-3xl bg-sun-100 p-5">
-          <span className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-2xl bg-white shadow-card"><b className="font-display text-2xl leading-none">{new Date(post.event.date + "T12:00:00Z").getUTCDate()}</b><span className="text-xs font-bold uppercase text-brand-600">{new Date(post.event.date + "T12:00:00Z").toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" })}</span></span>
+          <span className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-2xl bg-white shadow-card"><b className="font-display text-2xl leading-none">{new Date(post.event.date + "T12:00:00Z").getUTCDate()}</b><span className="text-xs font-bold uppercase text-brand-600">{dayMonth(post.event.date).month}</span></span>
           <span><b className="block font-display text-lg leading-tight">{post.event.title}</b><span className="text-sm text-ink-mute">{post.event.time} · {post.event.location}</span></span>
         </div>
       ) : post.media ? (

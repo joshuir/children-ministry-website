@@ -22,7 +22,7 @@ export default async function EventsPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <CmsHero hero={hero} tone="sun" />
       <section className="py-12 md:py-16" aria-label="Events calendar">
-        <div className="container"><EventsCalendar events={events} address={site.contact.address.join(", ")} initialMonth={new Date().toISOString().slice(0, 7)} /></div>
+        <div className="container"><EventsCalendar events={events} address={site.contact.address.join(", ")} initialMonth={new Date().toISOString().slice(0, 7)} calendarName={site.shortName} /></div>
       </section>
     </>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { dayMonth } from "@/lib/format";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import clsx from "clsx";
@@ -107,7 +108,7 @@ export function BlogPost({ post, author }: { post: FeedPost; author?: Teacher })
         <div className="mt-4 flex flex-col gap-4 rounded-3xl bg-sun-100 p-5 sm:flex-row sm:items-center">
           <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-2xl bg-white shadow-card">
             <span className="font-display text-2xl font-bold leading-none">{new Date(post.event.date + "T12:00:00Z").getUTCDate()}</span>
-            <span className="text-xs font-bold uppercase text-brand-600">{new Date(post.event.date + "T12:00:00Z").toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" })}</span>
+            <span className="text-xs font-bold uppercase text-brand-600">{dayMonth(post.event.date).month}</span>
           </div>
           <div className="flex-1">
             <p className="font-display text-xl font-semibold">{post.event.title}</p>

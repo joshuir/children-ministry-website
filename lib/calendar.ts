@@ -48,3 +48,23 @@ export const EVENT_CATEGORIES: { id: NonNullable<EventItem["category"]>; label: 
   { id: "camp", label: "Camps & trips" },
   { id: "training", label: "Teacher training" },
 ];
+
+export type SyncTarget = "google" | "apple" | "outlook" | "copy";
+
+/**
+ * One-click subscription links for the whole calendar feed. Subscribing (rather than downloading
+ * a file) means events the ministry adds or edits in the content manager appear automatically.
+ */
+export function syncLinks(host: string, name: string) {
+  const https = `https://${host}/api/calendar`;
+  const webcal = `webcal://${host}/api/calendar`;
+  return {
+    google: `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(webcal)}`,
+    apple: webcal,
+    outlook: `https://outlook.live.com/calendar/0/addfromweb?url=${encodeURIComponent(https)}&name=${encodeURIComponent(name)}`,
+    feed: https,
+  };
+}
+
+/** Short label for a category, used under the compact event icons. */
+export const categoryLabel = (id?: EventItem["category"]) => EVENT_CATEGORIES.find((c) => c.id === (id || "special"))?.label ?? "Event";
