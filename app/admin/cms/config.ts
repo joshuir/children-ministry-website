@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BookOpen, CalendarDays, Contact, GraduationCap, Home, Images, Info, LayoutDashboard, MessageSquareText, Inbox,
-  Newspaper, Share2, Smartphone, Users, History, FolderOpen, Rss, Layers, Type, PanelsTopLeft, HelpCircle, KeyRound, Gamepad2,
+  Newspaper, Share2, Smartphone, Users, History, FolderOpen, Rss, Layers, Type, PanelsTopLeft, HelpCircle, KeyRound, Gamepad2, Sparkles,
 } from "lucide-react";
 import { LEVELS, TRACKS } from "@/content/learn";
 import { FONT_CHOICES } from "@/content/pages";
@@ -404,6 +404,19 @@ export const SECTIONS: { title: string; items: Section[] }[] = [
             { k: "title", label: "Title", type: "text", wide: true }, { k: "body", label: "Text", type: "text", wide: true },
             { k: "button", label: "Button", type: "text" }, { k: "thanks", label: "Thank-you message", type: "text", wide: true },
           ] },
+        ],
+      },
+      {
+        kind: "form", id: "motion", label: "Animations", icon: Sparkles,
+        blurb: "How much the site moves. Calm keeps gentle fades and button feedback but removes parallax, scrolling effects and large movement.",
+        get: (c) => c.motion, set: (c, v) => ({ ...c, motion: v }),
+        fields: [
+          { k: "mode", label: "Animation style", type: "select", wide: true, options: [
+            { value: "auto", label: "Automatic — follow each visitor's device setting (recommended)" },
+            { value: "full", label: "Full animations for everyone" },
+            { value: "calm", label: "Calm for everyone — gentle fades only" },
+          ], help: "Automatic respects people who turn animations off on their phone or computer (on Windows: Settings → Accessibility → Visual effects)." },
+          { k: "showSwitch", label: "Show the Animations switch in the footer", type: "checkbox", help: "Lets visitors choose On or Calm for themselves. Their choice overrides the style above on their device." },
         ],
       },
       {

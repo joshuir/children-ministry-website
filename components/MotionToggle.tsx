@@ -5,7 +5,7 @@ import clsx from "clsx";
 import { motionSetting, setMotionSetting, type MotionSetting } from "@/lib/motion-pref";
 
 const OPTIONS: { id: MotionSetting; label: string; hint: string }[] = [
-  { id: "auto", label: "Auto", hint: "Follow this device's setting" },
+  { id: "auto", label: "Auto", hint: "Use the site's default" },
   { id: "on", label: "On", hint: "Full animations" },
   { id: "off", label: "Calm", hint: "Gentle fades only" },
 ];

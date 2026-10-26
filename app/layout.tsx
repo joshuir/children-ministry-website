@@ -7,7 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Motion } from "@/components/Motion";
 import { Cursor } from "@/components/Cursor";
-import { getClasses, getGroups, getPages, getSite, getTypography } from "@/lib/content";
+import { getClasses, getGroups, getMotion, getPages, getSite, getTypography } from "@/lib/content";
 import { fontHref, typographyCss } from "@/lib/typography";
 import { motionBootScript } from "@/lib/motion-pref";
 
@@ -33,10 +33,10 @@ export const viewport: Viewport = { themeColor: "#2563EB", width: "device-width"
 //    hydrates (React never renders text or comments directly inside <html>/<head>).
 // 2. Decides full vs calm motion before paint (see lib/motion-pref.ts) and hides reveal targets until
 //    GSAP is ready; they always appear within 2.5s even if scripts fail.
-const motionBoot = `(function(){try{[document.documentElement,document.head].forEach(function(n){for(var c=n.firstChild;c;){var x=c.nextSibling;if(c.nodeType===8||(c.nodeType===3&&!/\\S/.test(c.data)))n.removeChild(c);c=x}})}catch(e){}})();` + motionBootScript;
+const motionBoot = `(function(){try{[document.documentElement,document.head].forEach(function(n){for(var c=n.firstChild;c;){var x=c.nextSibling;if(c.nodeType===8||(c.nodeType===3&&!/\\S/.test(c.data)))n.removeChild(c);c=x}})}catch(e){}})();`;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [site, groups, pages, type, classes] = await Promise.all([getSite(), getGroups(), getPages(), getTypography(), getClasses()]);
+  const [site, groups, pages, type, classes, motion] = await Promise.all([getSite(), getGroups(), getPages(), getTypography(), getClasses(), getMotion()]);
   const fonts = fontHref(type);
   const jsonLd = {
     "@context": "https://schema.org",
@@ -53,7 +53,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en-GB" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: motionBoot }} />
+        <script dangerouslySetInnerHTML={{ __html: motionBoot + motionBootScript(motion.mode, motion.showSwitch) }} />
         <style id="cms-type" dangerouslySetInnerHTML={{ __html: typographyCss(type) }} />
         {fonts && <><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" /><link rel="stylesheet" href={fonts} /></>}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -65,7 +65,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             must run only after every section has hydrated. Deferred boundaries caused React #418 text mismatches. */}
         <Navbar site={site} groups={groups} classes={classes.map(({ id, name, group, ages }) => ({ id, name, group, ages }))} />
         <main id="main" className="flex flex-1 flex-col">{children}</main>
-        <Footer site={site} groups={groups} visit={pages.sections["footer.visit"]} />
+        <Footer site={site} groups={groups} visit={pages.sections["footer.visit"]} motionSwitch={motion.showSwitch} />
         <Motion />
         <Cursor />
       </body>

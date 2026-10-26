@@ -7,7 +7,7 @@ import { faqs } from "@/content/faqs";
 import { quiz } from "@/content/learn";
 import type {
   AboutContent, BibleLesson, ClassInfo, EventItem, GalleryCategory, GalleryItem, GroupInfo,
-  Faq, HomeContent, PagesContent, Post, QuizQuestion, SiteSettings, SocialEmbed, Teacher, Typography,
+  Faq, HomeContent, MotionSettings, PagesContent, Post, QuizQuestion, SiteSettings, SocialEmbed, Teacher, Typography,
 } from "@/lib/types";
 
 /** Everything editable in the CMS lives in one versioned JSON document. */
@@ -30,6 +30,7 @@ export interface CmsContent {
   faqs: Faq[];
   /** Bible learning games question bank. */
   quiz: QuizQuestion[];
+  motion: MotionSettings;
   pages: PagesContent;
   typography: Typography;
 }
@@ -53,6 +54,7 @@ export function seedContent(): CmsContent {
     posts: posts.map((p) => ({ ...p, status: "published" as const })),
     faqs,
     quiz,
+    motion: { mode: "auto", showSwitch: true },
     pages,
     typography,
     socialEmbeds: [
@@ -79,6 +81,7 @@ export function normalize(raw: Partial<CmsContent> | null | undefined): CmsConte
     newsletter: { ...seed.pages.newsletter, ...(p.newsletter || {}) },
   };
   out.typography = { ...seed.typography, ...(out.typography || {}) };
+  out.motion = { ...seed.motion, ...(out.motion || {}) };
   if (out.home?.hero && out.home.hero.rotate === undefined) out.home = { ...out.home, hero: { ...out.home.hero, rotate: seed.home.hero.rotate } };
   if (out.about && out.about.historyDoc === undefined) out.about = { ...out.about, historyDoc: seed.about.historyDoc };
   return out;
@@ -89,7 +92,7 @@ export function validate(c: any): string | null {
   if (!c || typeof c !== "object") return "Content must be an object.";
   const arrays = ["teachers", "groups", "classes", "lessons", "events", "galleryCategories", "gallery", "posts", "socialEmbeds", "faqs", "quiz"];
   for (const k of arrays) if (c[k] !== undefined && !Array.isArray(c[k])) return `“${k}” must be a list.`;
-  for (const k of ["site", "home", "about", "pages", "typography"]) if (c[k] !== undefined && (typeof c[k] !== "object" || Array.isArray(c[k]))) return `“${k}” must be an object.`;
+  for (const k of ["site", "home", "about", "pages", "typography", "motion"]) if (c[k] !== undefined && (typeof c[k] !== "object" || Array.isArray(c[k]))) return `“${k}” must be an object.`;
   const size = JSON.stringify(c).length;
   if (size > 4_000_000) return "Content is too large (over 4 MB). Upload big files to the media library instead of pasting them.";
   return null;

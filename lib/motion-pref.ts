@@ -38,5 +38,9 @@ export function setMotionSetting(s: MotionSetting) {
   } catch { /* storage blocked: the choice lasts until reload */ }
 }
 
-/** Inline boot snippet (runs in <head> before paint). Kept in sync with isReduced(). */
-export const motionBootScript = `(function(){try{var d=document.documentElement,o=null;try{o=localStorage.getItem('${MOTION_KEY}')}catch(e){}var r=o==='off'||(o!=='on'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);d.setAttribute('data-motion',r?'reduced':'full');d.classList.add('motion-pending');setTimeout(function(){if(!window.__motionReady)d.classList.remove('motion-pending')},2500)}catch(e){}})();`;
+/**
+ * Inline boot snippet (runs in <head> before paint). `mode` and `allowChoice` come from the content
+ * manager (Animations). A visitor's own choice only counts while the footer switch is shown.
+ */
+export const motionBootScript = (mode: "auto" | "full" | "calm" = "auto", allowChoice = true) =>
+  `(function(){try{var d=document.documentElement,o=null;${allowChoice ? `try{o=localStorage.getItem('${MOTION_KEY}')}catch(e){}` : ""}var os=window.matchMedia('(prefers-reduced-motion: reduce)').matches;var r=o==='off'?true:o==='on'?false:${mode === "full" ? "false" : mode === "calm" ? "true" : "os"};d.setAttribute('data-motion',r?'reduced':'full');d.classList.add('motion-pending');setTimeout(function(){if(!window.__motionReady)d.classList.remove('motion-pending')},2500)}catch(e){}})();`;
