@@ -122,8 +122,10 @@ export function Navbar({ site, groups, classes }: { site: SiteSettings; groups: 
           <Link href={site.cta.href} aria-label={site.cta.label} data-cta
             className={clsx(buttonClass("primary", "sm"), "whitespace-nowrap !px-4 shadow-[0_4px_14px_-4px_rgba(37,99,235,.55)] sm:!px-5")}>
             <CalendarHeart aria-hidden className="hidden h-4 w-4 sm:block" />
-            <span className="btn-label xl:hidden">Join us</span>
-            <span className="btn-label hidden xl:inline">{site.cta.label}</span>
+            <span className="btn-label">
+              <span className="xl:hidden">Join us</span>
+              <span className="hidden xl:inline">{site.cta.label}</span>
+            </span>
           </Link>
           <button
             type="button"
