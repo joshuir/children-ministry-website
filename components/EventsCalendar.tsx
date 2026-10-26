@@ -31,7 +31,7 @@ function monthGrid(year: number, month: number) {
   return Array.from({ length: weeks * 7 }, (_, i) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
 }
 
-export function EventDetail({ e, address, compact }: { e: EventItem; address: string; compact?: boolean }) {
+export function EventDetail({ e, compact }: { e: EventItem; address?: string; compact?: boolean }) {
   const multi = e.endDate && e.endDate !== e.date;
   return (
     <article className={clsx("rounded-4xl bg-white ring-1 ring-ink/5", compact ? "p-4" : "p-5 shadow-card sm:p-6")}>
